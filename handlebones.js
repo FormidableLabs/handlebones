@@ -5,11 +5,14 @@
     viewCidAttributeName = "data-view-cid",
     linkAttributeName = "data-history-link",
     viewPlaceholderAttributeName = "data-view-tmp",
+    modelCidAttributeName = "data-model-cid",
     viewTemplateOverrides = {},
     viewsIndexedByCid = {},
     isIE11 = !!navigator.userAgent.match(/Trident\/7\./),
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
     hasDOMLib = typeof $ !== "undefined" && $.fn;
+
+  // View
 
   function triggerReadyOnChild(child) {
     child._isReady || child.trigger("ready", options);
@@ -34,6 +37,24 @@
     !this._renderCount && this.render();
   }
 
+  function replaceHTML (html) {
+    if (hasDOMLib) {
+      // We want to pull our elements out of the tree if we are under jQuery
+      // or IE as both have the tendancy to mangle the elements we want to reuse
+      // on cleanup. This could leak event binds if users are performing custom binds
+      // but this generally not recommended.
+      if (this._renderCount && (isIE || $.fn.jquery)) {
+        while (this.el.hasChildNodes()) {
+          this.el.removeChild(this.el.childNodes[0]);
+        }
+      }
+      this.$el.empty();
+      this.$el.append(html);
+    } else {
+      this.el.innerHTML = html;
+    }
+  }
+
   Handlebones.View = Backbone.View.extend({
     addChild: function (view) {
       if (this.children[view.cid]) {
@@ -54,21 +75,7 @@
 
     render: function () {
       var output = this.template(this.context());
-      if (hasDOMLib) {
-        // We want to pull our elements out of the tree if we are under jQuery
-        // or IE as both have the tendancy to mangle the elements we want to reuse
-        // on cleanup. This could leak event binds if users are performing custom binds
-        // but this generally not recommended.
-        if (this._renderCount && (isIE || $.fn.jquery)) {
-          while (this.el.hasChildNodes()) {
-            this.el.removeChild(this.el.childNodes[0]);
-          }
-        }
-        this.$el.empty();
-        this.$el.append(html);
-      } else {
-        this.el.innerHTML = html;
-      }
+      replaceHTML.call(this, html);
       appendChildViews.call(this);
       ++this._renderCount;
       return this;
@@ -80,7 +87,16 @@
 
     appendTo: function (el) {
       ensureRendered.call(this);
-      el.appendChild(this.el);
+      // allow for a custom dom insertion operation
+      if (_.isFunction(el)) {
+        el();
+      } else {
+        if (hasDOMLib) {
+          this.$el.append(el);
+        } else {
+          el.appendChild(this.el);
+        }
+      }
       this.trigger("ready", {
         target: this
       });
@@ -111,6 +127,8 @@
       return Backbone.View.prototype._ensureElement.call(this);
     }
   });
+
+  // LayoutView
 
   Handlebones.LayoutView = Handlebones.View.extend({
     _renderCount: 1,
@@ -151,6 +169,154 @@
       return this._view;
     }
   });
+
+  // CollectionView
+
+  function hasClassName(name) {
+    return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
+  }
+
+  function addClassName(name) {
+    if (!hasClassName.call(this, name)) {
+      this.className = this.className ? [this.className, name].join(" ") : name;
+    }
+  }
+
+  function removeClassName(name) {
+    if (hasClassName.call(this, name)) {
+      var className = this.className;
+      this.className = className.replace(new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g"), "");
+    }
+  }
+
+  function handleChangeFromEmptyToNotEmpty() {
+    this.emptyClass && removeClass.call(this.el, this.emptyClass);
+    if (this._emptyViewInstance) {
+      this._emptyViewInstance.remove();
+      this.removeChild(this._emptyViewInstance);
+    }
+    replaceHTML.call(this, "");
+  }
+  
+  function handleChangeFromNotEmptyToEmpty() {
+    this.emptyClass && addClass.call(this.el, this.emptyClass);
+    replaceHTML.call(this, "");
+    if (this.emptyView) {
+      this._emptyViewInstance = new this.emptyView();
+      this.addChild(this._emptyViewInstance);
+      this._emptyViewInstance.appendTo(this.el);
+    }
+  }
+
+  function applyVisibilityFilter() {
+    if (this.itemFilter) {
+      this.collection.forEach(applyItemVisiblityFilter, this);
+    }
+  }
+  
+  function applyItemVisiblityFilter(model) {
+    if (this.itemFilter) {
+      var els = this.el.querySelectorAll("[" + modelCidAttributeName + "=\"" + model.cid + "\"]");
+      _.each(els, function (el) {
+        if (itemShouldBeVisible.call(this, model)) {
+          el.style.display = "block";
+        } else {
+          el.style.display = "none";
+        }
+      });
+    }
+  }
+  
+  function itemShouldBeVisible(model) {
+    return this.itemFilter(model, this.collection.indexOf(model));
+  }
+
+  Handlebones.ItemView = Handlebones.View.extend({
+    _ensureElement: function () {
+      var response = Handlebones.View.prototype._ensureElement.apply(this, arguments);
+      this.el.setAttribute(modelCidAttributeName, this.model.cid);
+      return response;
+    },
+    context: function () {
+      return this.model.attributes;
+    }
+  });
+
+  Handlebones.CollectionView = Handlebones.View.extend({
+    itemView: Handlebones.ItemView,
+    emptyView: Handlebones.View,
+    emptyClass: "empty",
+    itemFilter: false,
+    initialize: function () {
+      this.listenTo(this.collection, {
+        reset: "render",
+        sort: "render",
+        change: function(model) {
+          applyItemVisiblityFilter.call(this, model);
+        },
+        add: function(model) {
+          if (this.collection.length === 1) {
+            handleChangeFromEmptyToNotEmpty.call(this);
+          }
+          var index = this.collection.indexOf(model);
+          this.appendItem(model, index);
+        },
+        remove: function(model) {
+          this.removeItem(model);
+          this.collection.length === 0 && handleChangeFromNotEmptyToEmpty.call(this);
+        }
+      });
+    },
+    render: function () {
+      if (this.collection.length === 0) {
+        handleChangeFromNotEmptyToEmpty.call(this);
+      } else {
+        handleChangeFromEmptyToNotEmpty.call(this);
+        this.collection.forEach(function(model, i) {
+          this.appendItem(model, i);
+        }, this);
+      }
+      ++this._renderCount;
+      return this;
+    },
+    appendItem: function (model, index) {
+      var view = new this.itemView({
+        model: model
+      });
+      this.addChild(view);
+      var previousModel = index > 0 ? this.collection.at(index - 1) : false;
+      if (!previousModel) {
+        view.appendTo(_.bind(function () {
+          this.el.parentNode.insertBefore(view.el, this.el.firstChild)
+        }, this));
+      } else {
+        //use last() as appendItem can accept multiple nodes from a template
+        var last = $el.children('[' + modelCidAttributeName + '="' + previousModel.cid + '"]').last();
+
+        //var refNode = document.getElementById("xyz"); 
+        //refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+        
+        last.after(itemElement);
+      }
+      applyItemVisiblityFilter.call(this, model);
+      this.trigger("appended", view);
+      return this;
+    },
+    removeItem: function (model) {
+      var el = this.el.querySelector("[" + modelCidAttributeName + "=\"" + model.cid + "\"]"),
+        viewCid = el.getAttribute(viewCidAttributeName);
+        view = this.children[viewCid];
+      view.remove();
+      this.removeChild(view);
+      this.trigger("removed", view);
+      return this;
+    },
+    updateFilter: function () {
+      applyVisibilityFilter.call(this);
+    }
+  });
+
+  // Util
 
   function deref (token, scope) {
     if (token.match(/^("|')/) && token.match(/("|')$/)) {
@@ -299,15 +465,27 @@
   });
 
   // Handler for link helper clicks
-  (document.addEventListener || document.attachEvent)('readystatechange', function() {
+  var ElementProto = typeof Element != 'undefined' && Element.prototype;
+
+  // Cross-browser event listener shims
+  var elementAddEventListener = ElementProto.addEventListener || function(eventName, listener) {
+    return this.attachEvent(eventName, listener);
+  };
+
+  elementAddEventListener.call(document, 'readystatechange', function() {
     if (document.readyState === "complete") {
-      (document.body.addEventListener || document.body.attachEvent)("click", function (event) {
+      elementAddEventListener.call(document.body, "click", function (event) {
         var href = event.target.getAttribute("href");
         // Route anything that starts with # or / (excluding //domain urls)
         if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
           Backbone.history.navigate(href, {
             trigger: true
           });
+        }
+        if (event.preventDefault) {
+          event.preventDefault();
+        } else {
+          event.returnValue = false;
         }
       });
     }
@@ -320,5 +498,6 @@
       return (el && viewsIndexedByCid[el.attr(viewCidAttributeName)]) || false;
     };
   }
+
 
 })();

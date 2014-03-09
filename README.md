@@ -10,9 +10,10 @@ TODO: add expand-tokens support
 ## parent
 ## template
 ## render
-## $.view
 ## ready event
- - target param
+  - target param
+## appendTo
+  - custom operation
 
 # LayoutView
 ## setView
@@ -22,6 +23,16 @@ TODO: add expand-tokens support
 
 # CollectionView
 
+## itemView
+## emptyView
+## emptyClass
+## appendItem
+## removeItem
+## itemFilter
+## updateFilter
+
+## removed event
+
 # Util
 
 ## tag
@@ -30,8 +41,7 @@ TODO: add expand-tokens support
 
 ## url
 ## link
-
-
-## view  <- do not auto addChild
-## button
+## view
 ## collection
+
+## $.view

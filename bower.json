@@ -1,0 +1,14 @@
+{
+  "name": "handlebones",
+  "version": "0.0.1",
+  "main": "handlebones.js",
+  "dependencies": {
+    "underscore": "1.6.0",
+    "backbone": "1.1.2"
+  },
+  "ignore": [
+    ".jshintrc",
+    "node_modules",
+    "bower_components"
+  ]
+}

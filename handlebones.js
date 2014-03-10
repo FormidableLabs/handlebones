@@ -12,6 +12,31 @@
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
     hasDOMLib = typeof $ !== "undefined" && $.fn;
 
+  // DOM 
+  var ElementProto = typeof Element != "undefined" && Element.prototype;
+
+  var elementAddEventListener = ElementProto.addEventListener || function(eventName, listener) {
+    return this.attachEvent(eventName, listener);
+  };
+  
+  function hasClassName (name) {
+    return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
+  }
+
+  function addClassName (name) {
+    if (!hasClassName.call(this, name)) {
+      this.className = this.className ? [this.className, name].join(" ") : name;
+    }
+  }
+
+  function removeClassName (name) {
+    if (hasClassName.call(this, name)) {
+      var className = this.className,
+        regexp = new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g")
+      this.className = className.replace(regexp, "");
+    }
+  }
+
   // View
 
   function triggerReadyOnChild(child) {
@@ -64,15 +89,12 @@
       this.trigger("child", view);
       return this;
     },
-
     removeChild: function (view) {
       view.parent = null;
       delete this.children[view.cid];
       return this;
     },
-
     template: Handlebars.VM.noop,
-
     render: function () {
       var output = this.template(this.context());
       replaceHTML.call(this, html);
@@ -80,11 +102,9 @@
       ++this._renderCount;
       return this;
     },
-
     context: function () {
       return this;
     },
-
     appendTo: function (el) {
       ensureRendered.call(this);
       // allow for a custom dom insertion operation
@@ -101,25 +121,20 @@
         target: this
       });
     },
-
     // Private and undocumented methods
-
     remove: function () {
       delete viewsIndexedByCid[this.cid];
       return Backbone.View.prototype.remove.apply(this, arguments);
     },
-
     toString: function () {
       return "[object Handlebones.View." + (this.name || this.cid) + "]";
     },
-
     setElement : function () {
       var response = Backbone.View.prototype.setElement.apply(this, arguments);
       this.name && this.el.setAttribute(viewNameAttributeName, this.name);
       this.el.setAttribute(viewCidAttributeName, this.cid);
       return response;
     },
-
     // So developers don't need to call parent initialize, use _ensureElement
     // hook to configure the view
     _ensureElement: function () {
@@ -129,7 +144,6 @@
   });
 
   // LayoutView
-
   Handlebones.LayoutView = Handlebones.View.extend({
     _renderCount: 1,
     render: function () {
@@ -172,24 +186,7 @@
 
   // CollectionView
 
-  function hasClassName(name) {
-    return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
-  }
-
-  function addClassName(name) {
-    if (!hasClassName.call(this, name)) {
-      this.className = this.className ? [this.className, name].join(" ") : name;
-    }
-  }
-
-  function removeClassName(name) {
-    if (hasClassName.call(this, name)) {
-      var className = this.className;
-      this.className = className.replace(new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g"), "");
-    }
-  }
-
-  function handleChangeFromEmptyToNotEmpty() {
+  function handleChangeFromEmptyToNotEmpty () {
     this.emptyClass && removeClass.call(this.el, this.emptyClass);
     if (this._emptyViewInstance) {
       this._emptyViewInstance.remove();
@@ -198,7 +195,7 @@
     replaceHTML.call(this, "");
   }
   
-  function handleChangeFromNotEmptyToEmpty() {
+  function handleChangeFromNotEmptyToEmpty () {
     this.emptyClass && addClass.call(this.el, this.emptyClass);
     replaceHTML.call(this, "");
     if (this.emptyView) {
@@ -208,15 +205,16 @@
     }
   }
 
-  function applyVisibilityFilter() {
+  function applyVisibilityFilter () {
     if (this.itemFilter) {
       this.collection.forEach(applyItemVisiblityFilter, this);
     }
   }
   
-  function applyItemVisiblityFilter(model) {
+  function applyItemVisiblityFilter (model) {
     if (this.itemFilter) {
-      var els = this.el.querySelectorAll("[" + modelCidAttributeName + "=\"" + model.cid + "\"]");
+      var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
+        els = this.el.querySelectorAll(selector);
       _.each(els, function (el) {
         if (itemShouldBeVisible.call(this, model)) {
           el.style.display = "block";
@@ -227,7 +225,7 @@
     }
   }
   
-  function itemShouldBeVisible(model) {
+  function itemShouldBeVisible (model) {
     return this.itemFilter(model, this.collection.indexOf(model));
   }
 
@@ -251,17 +249,17 @@
       this.listenTo(this.collection, {
         reset: "render",
         sort: "render",
-        change: function(model) {
+        change: function (model) {
           applyItemVisiblityFilter.call(this, model);
         },
-        add: function(model) {
+        add: function (model) {
           if (this.collection.length === 1) {
             handleChangeFromEmptyToNotEmpty.call(this);
           }
           var index = this.collection.indexOf(model);
           this.appendItem(model, index);
         },
-        remove: function(model) {
+        remove: function (model) {
           this.removeItem(model);
           this.collection.length === 0 && handleChangeFromNotEmptyToEmpty.call(this);
         }
@@ -287,15 +285,16 @@
       var previousModel = index > 0 ? this.collection.at(index - 1) : false;
       if (!previousModel) {
         view.appendTo(_.bind(function () {
-          this.el.parentNode.insertBefore(view.el, this.el.firstChild)
+          this.el.parentNode.insertBefore(view.el, this.el.firstChild);
         }, this));
       } else {
         //use last() as appendItem can accept multiple nodes from a template
-        var last = $el.children('[' + modelCidAttributeName + '="' + previousModel.cid + '"]').last();
+        var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
+        var last = $el.children().last(selector);
 
         //var refNode = document.getElementById("xyz"); 
         //refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
-        
+
         last.after(itemElement);
       }
       applyItemVisiblityFilter.call(this, model);
@@ -303,7 +302,8 @@
       return this;
     },
     removeItem: function (model) {
-      var el = this.el.querySelector("[" + modelCidAttributeName + "=\"" + model.cid + "\"]"),
+      var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
+        el = this.el.querySelector(selector),
         viewCid = el.getAttribute(viewCidAttributeName);
         view = this.children[viewCid];
       view.remove();
@@ -465,14 +465,8 @@
   });
 
   // Handler for link helper clicks
-  var ElementProto = typeof Element != 'undefined' && Element.prototype;
 
-  // Cross-browser event listener shims
-  var elementAddEventListener = ElementProto.addEventListener || function(eventName, listener) {
-    return this.attachEvent(eventName, listener);
-  };
-
-  elementAddEventListener.call(document, 'readystatechange', function() {
+  elementAddEventListener.call(document, "readystatechange", function() {
     if (document.readyState === "complete") {
       elementAddEventListener.call(document.body, "click", function (event) {
         var href = event.target.getAttribute("href");
@@ -498,6 +492,5 @@
       return (el && viewsIndexedByCid[el.attr(viewCidAttributeName)]) || false;
     };
   }
-
 
 })();

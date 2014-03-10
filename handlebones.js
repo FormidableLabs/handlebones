@@ -1,5 +1,7 @@
 (function () {
 
+  /* global $, Backbone, _, Handlebars */
+
   var Handlebones = {},
     viewNameAttributeName = "data-view-name",
     viewCidAttributeName = "data-view-cid",
@@ -13,26 +15,26 @@
     hasDOMLib = typeof $ !== "undefined" && $.fn;
 
   // DOM 
-  var ElementProto = typeof Element != "undefined" && Element.prototype;
+  var ElementProto = typeof Element !== "undefined" && Element.prototype;
 
-  var elementAddEventListener = ElementProto.addEventListener || function(eventName, listener) {
+  var elementAddEventListener = ElementProto.addEventListener || function (eventName, listener) {
     return this.attachEvent(eventName, listener);
   };
-  
-  function hasClassName (name) {
+
+  function hasClassName(name) {
     return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
   }
 
-  function addClassName (name) {
+  function addClassName(name) {
     if (!hasClassName.call(this, name)) {
       this.className = this.className ? [this.className, name].join(" ") : name;
     }
   }
 
-  function removeClassName (name) {
+  function removeClassName(name) {
     if (hasClassName.call(this, name)) {
       var className = this.className,
-        regexp = new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g")
+        regexp = new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)", "g");
       this.className = className.replace(regexp, "");
     }
   }
@@ -40,10 +42,10 @@
   // View
 
   function triggerReadyOnChild(child) {
-    child._isReady || child.trigger("ready", options);
+    child._isReady || child.trigger("ready");
   }
 
-  function onReady () {
+  function onReady() {
     if (!this._isReady) {
       this._isReady = true;
       _.each(this.children, triggerReadyOnChild);
@@ -51,18 +53,18 @@
     }
   }
 
-  function configureView () {
+  function configureView() {
     this._renderCount = 0;
     this.children = {};
     viewsIndexedByCid[this.cid] = this;
     this.listenTo(this, "ready", onReady);
   }
 
-  function ensureRendered () {
+  function ensureRendered() {
     !this._renderCount && this.render();
   }
 
-  function replaceHTML (html) {
+  function replaceHTML(html) {
     if (hasDOMLib) {
       // We want to pull our elements out of the tree if we are under jQuery
       // or IE as both have the tendancy to mangle the elements we want to reuse
@@ -96,7 +98,7 @@
     },
     template: Handlebars.VM.noop,
     render: function () {
-      var output = this.template(this.context());
+      var html = this.template(this.context());
       replaceHTML.call(this, html);
       appendChildViews.call(this);
       ++this._renderCount;
@@ -152,18 +154,17 @@
     setView: function (view, options) {
       var oldView = this._view,
         append,
-        remove,
-        complete;
+        remove;
       if (view === oldView && !options.force) {
         return false;
-      }  
-      remove = _.bind(function() {
+      }
+      remove = _.bind(function () {
         if (oldView) {
           oldView.remove();
           this.removeChild(oldView);
         }
       }, this);
-      append = _.bind(function() {
+      append = _.bind(function () {
         this._view = view;
         if (view) {
           ensureRendered.call(view);
@@ -186,8 +187,8 @@
 
   // CollectionView
 
-  function handleChangeFromEmptyToNotEmpty () {
-    this.emptyClass && removeClass.call(this.el, this.emptyClass);
+  function handleChangeFromEmptyToNotEmpty() {
+    this.emptyClass && removeClassName.call(this.el, this.emptyClass);
     if (this._emptyViewInstance) {
       this._emptyViewInstance.remove();
       this.removeChild(this._emptyViewInstance);
@@ -195,8 +196,8 @@
     replaceHTML.call(this, "");
   }
   
-  function handleChangeFromNotEmptyToEmpty () {
-    this.emptyClass && addClass.call(this.el, this.emptyClass);
+  function handleChangeFromNotEmptyToEmpty() {
+    this.emptyClass && addClassName.call(this.el, this.emptyClass);
     replaceHTML.call(this, "");
     if (this.emptyView) {
       this._emptyViewInstance = new this.emptyView();
@@ -205,13 +206,13 @@
     }
   }
 
-  function applyVisibilityFilter () {
+  function applyVisibilityFilter() {
     if (this.itemFilter) {
       this.collection.forEach(applyItemVisiblityFilter, this);
     }
   }
   
-  function applyItemVisiblityFilter (model) {
+  function applyItemVisiblityFilter(model) {
     if (this.itemFilter) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
         els = this.el.querySelectorAll(selector);
@@ -225,7 +226,7 @@
     }
   }
   
-  function itemShouldBeVisible (model) {
+  function itemShouldBeVisible(model) {
     return this.itemFilter(model, this.collection.indexOf(model));
   }
 
@@ -270,7 +271,7 @@
         handleChangeFromNotEmptyToEmpty.call(this);
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
-        this.collection.forEach(function(model, i) {
+        this.collection.forEach(function (model, i) {
           this.appendItem(model, i);
         }, this);
       }
@@ -290,12 +291,12 @@
       } else {
         //use last() as appendItem can accept multiple nodes from a template
         var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
-        var last = $el.children().last(selector);
+        var last = this.$el.children().last(selector);
 
         //var refNode = document.getElementById("xyz"); 
         //refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
 
-        last.after(itemElement);
+        last.after(view.el);
       }
       applyItemVisiblityFilter.call(this, model);
       this.trigger("appended", view);
@@ -304,7 +305,7 @@
     removeItem: function (model) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
         el = this.el.querySelector(selector),
-        viewCid = el.getAttribute(viewCidAttributeName);
+        viewCid = el.getAttribute(viewCidAttributeName),
         view = this.children[viewCid];
       view.remove();
       this.removeChild(view);
@@ -318,9 +319,9 @@
 
   // Util
 
-  function deref (token, scope) {
+  function deref(token, scope) {
     if (token.match(/^("|')/) && token.match(/("|')$/)) {
-      return token.replace(/(^("|')|('|")$)/g, '');
+      return token.replace(/(^("|')|('|")$)/g, "");
     }
     var segments = token.split("."),
         len = segments.length;
@@ -336,7 +337,7 @@
     tag: function (attributes, content, scope) {
       var htmlAttributes = _.omit(attributes, "tagName"),
           tag = attributes.tagName || "div";
-      return "<" + tag + " " + _.map(htmlAttributes, function(value, key) {
+      return "<" + tag + " " + _.map(htmlAttributes, function (value, key) {
         var formattedValue = value;
         if (scope) {
           formattedValue = Handlebones.Util.expandToken(value, scope);
@@ -350,14 +351,15 @@
         var re = /(?:\{?[^{]+)|(?:\{\{([^}]+)\}\})/g,
             match,
             ret = [];
+        var mapper = function (param) {
+          return deref(param, scope);
+        };
         while (match = re.exec(input)) {
           if (match[1]) {
             var params = match[1].split(/\s+/);
             if (params.length > 1) {
               var helper = params.shift();
-              params = _.map(params, function(param) {
-                return deref(param, scope);
-              });
+              params = _.map(params, mapper);
               if (Handlebars.helpers[helper]) {
                 ret.push(Handlebars.helpers[helper].apply(scope, params));
               } else {
@@ -383,7 +385,7 @@
   // jQuery, etc. Special case for "className" in
   // Handlebones.Util.tag: will be rewritten as "class" in
   // generated HTML.
-  function normalizeHTMLAttributeOptions (options) {
+  function normalizeHTMLAttributeOptions(options) {
     if (options.tag) {
       options.tagName = options.tag;
       delete options.tag;
@@ -408,7 +410,7 @@
     return new Handlebars.SafeString(output);
   });
 
-  function appendChildViews () {
+  function appendChildViews() {
     var placeholders = document.querySelectorAll("[" + viewPlaceholderAttributeName + "]");
     _.each(placeholders, function (el) {
       var placeholderId = el.getAttribute(viewPlaceholderAttributeName),
@@ -433,8 +435,6 @@
     if (arguments.length > 2) {
       fragment = _.map(_.head(arguments, arguments.length - 1), encodeURIComponent).join("/");
     } else {
-      var options = arguments[1],
-          hash = (options && options.hash) || options;
       fragment = Handlebones.Util.expandToken(url, this);
     }
     if (Backbone.history._hasPushState) {
@@ -449,7 +449,7 @@
     }
   });
 
-  Handlebars.registerHelper("link", function() {
+  Handlebars.registerHelper("link", function () {
     var args = _.toArray(arguments),
       options = args.pop(),
       hash = options.hash,
@@ -460,13 +460,13 @@
     hash.href = Handlebars.helpers.url.apply(this, url);
     hash.tagName = hash.tagName || "a";
     hash[linkAttributeName] = true;
-    var output = Thorax.Util.tag(hash, options.fn ? options.fn(this) : "", this);
+    var output = Handlebones.Util.tag(hash, options.fn ? options.fn(this) : "", this);
     return new Handlebars.SafeString(output);
   });
 
   // Handler for link helper clicks
 
-  elementAddEventListener.call(document, "readystatechange", function() {
+  elementAddEventListener.call(document, "readystatechange", function () {
     if (document.readyState === "complete") {
       elementAddEventListener.call(document.body, "click", function (event) {
         var href = event.target.getAttribute("href");
@@ -486,7 +486,7 @@
   }, false);
 
   if (hasDOMLib) {
-    $.fn.view = function() {
+    $.fn.view = function () {
       var selector = "[" + viewCidAttributeName + "]",
         el = $(this).closest(selector);
       return (el && viewsIndexedByCid[el.attr(viewCidAttributeName)]) || false;

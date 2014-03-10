@@ -1,9 +1,75 @@
-(function () {
+// Handlebones 0.0.1
+// 
+// (c) 2014 Formidable Labs Inc.
+// Handlebones may be freely distributed under the MIT license.
+// For all details and documentation:
+// http://handlebonesjs.org
+// 
+// Handlebones is a minimalist version of Thorax:
+// http://thoraxjs.org/
+// Original copyright notice follows.
+// 
+// ### 
+//
+// Copyright (c) 2011-2013 @WalmartLabs
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
 
-  /* global $, Backbone, _, Handlebars */
+(function (root, factory) {
 
-  var Handlebones = {},
-    viewNameAttributeName = "data-view-name",
+  // Set up Handlebones appropriately for the environment. Start with AMD.
+  if (typeof define === "function" && define.amd) {
+    define([
+      "underscore",
+      "backbone",
+      "handlebars",
+      "jquery",
+      "exports"
+    ], function (_, Backbone, Handlebars, $, exports) {
+      // Export global even in AMD case in case this script is loaded with
+      // others that may still expect a global Backbone.
+      root.Handlebones = factory(root, exports, _, Backbone, Handlebars, $);
+    });
+  // Next for Node.js or CommonJS. jQuery may not be needed as a module.
+  /* global exports */
+  } else if (typeof exports !== "undefined") {
+    var _ = require("underscore"),
+      Backbone = require("backbone"),
+      Handlebars = require("handlebars");
+    factory(root, exports, _, Backbone, Handlebars);
+  // Finally, as a browser global.
+  } else {
+    root.Handlebones = factory(
+      root,
+      {},
+      root._,
+      root.Backbone,
+      root.Handlebars,
+      (root.jQuery || root.Zepto || root.ender || root.$)
+    );
+  }
+
+})(this, function (root, Handlebones, _, Backbone, Handlebars, $) {
+
+  Handlebones.VERSION = "0.0.1";
+
+  var viewNameAttributeName = "data-view-name",
     viewCidAttributeName = "data-view-cid",
     linkAttributeName = "data-history-link",
     viewPlaceholderAttributeName = "data-view-tmp",
@@ -13,6 +79,7 @@
     isIE11 = !!navigator.userAgent.match(/Trident\/7\./),
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
     hasDOMLib = typeof $ !== "undefined" && $.fn;
+
 
   // DOM 
   var ElementProto = typeof Element !== "undefined" && Element.prototype;
@@ -493,4 +560,6 @@
     };
   }
 
-})();
+  return Handlebones;
+
+});

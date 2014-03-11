@@ -7,6 +7,10 @@
     "backbone": "1.1.2",
     "handlebars": "1.1.2"
   },
+  "devDependencies": {
+    "jasmine": "2.0.0",
+    "jquery": "2.1.0"
+  },
   "ignore": [
     "node_modules",
     "bower_components"

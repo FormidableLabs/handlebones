@@ -1,10 +1,19 @@
 var gulp = require("gulp"),
+  mocha = require("gulp-mocha"),
   jshint = require("gulp-jshint"),
   uglify = require("gulp-uglify"),
   rename = require("gulp-rename"),
-  clean = require("gulp-clean");
+  clean = require("gulp-clean"),
+  connect = require("gulp-connect");
 
-gulp.task("compress", function() {
+gulp.task("mocha", ["lint"], function () {
+  gulp.src("test.js")
+    .pipe(mocha({
+      reporter: "nyan"
+    }));
+});
+
+gulp.task("compress", ["mocha"], function() {
   return gulp.src("./handlebones.js")
     .pipe(uglify({
       outSourceMap: true
@@ -38,3 +47,11 @@ gulp.task("lint", function() {
     .pipe(jshint())
     .pipe(jshint.reporter("default"));
 });
+
+gulp.task("connect", connect.server({
+  root: ["test", "bower_components"],
+  livereload: false,
+  port: 8080
+}));
+
+gulp.task("default", ["mocha"]);

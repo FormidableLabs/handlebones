@@ -65,3 +65,15 @@ TODO: add expand-tokens support
 ## Testing
 
    npm install -g mocha-phantomjs phantomjs
+
+### Test modes
+
+- native
+- jQuery
+- Zepto
+- AMD unbundled native
+- AMD bundled native
+- AMD unbundled jQuery
+- AMD bundled jQuery
+- AMD unbundled Zepto
+- AMD bundled Zepto

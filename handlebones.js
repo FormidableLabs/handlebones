@@ -183,12 +183,13 @@
       if (this.children[view.cid]) {
         return view;
       }
+      view.parent = this;
       this.children[view.cid] = view;
       this.trigger("addChild", view);
       return this;
     },
     removeChild: function (view) {
-      view.parent = null;
+      delete view.parent;
       delete this.children[view.cid];
       this.trigger("removeChild", view);
       return this;
@@ -375,7 +376,7 @@
         last.after(view.el);
       }
       applyItemVisiblityFilter.call(this, model);
-      this.trigger("appended", view);
+      this.trigger("appendItem", model, view);
       return this;
     },
     removeItem: function (model) {
@@ -385,7 +386,7 @@
         view = this.children[viewCid];
       view.remove();
       this.removeChild(view);
-      this.trigger("removed", view);
+      this.trigger("removeItem", model, view);
       return this;
     },
     updateFilter: function () {

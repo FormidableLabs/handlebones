@@ -102,8 +102,12 @@ describe("appendTo & ready", function () {
   });
 
   it("should fire ready event when appended", function () {
-    var spy = sinon.spy();
-    var view = new (Handlebones.View.extend({
+    var view;
+    var spy = sinon.spy(function (options) {
+      // should pass target param
+      expect(options.target).to.equal(view);
+    });
+    view = new (Handlebones.View.extend({
       id: "test-view",
       template: Handlebars.compile("test"),
       initialize: function () {
@@ -131,5 +135,38 @@ describe("appendTo & ready", function () {
 });
 
 describe("addChild & removeChild", function () {
+  it("should set and remove parent attr", function () {
+    var parent = new Handlebones.View();
+    var child = new Handlebones.View();
+    parent.addChild(child);
+    expect(child.parent).to.equal(parent);
+    parent.removeChild(child);
+    expect(child.parent).to.be["undefined"];
+  });
 
+  it("should update children array", function () {
+    var parent = new Handlebones.View();
+    var child = new Handlebones.View();
+    parent.addChild(child);
+    expect(parent.children[child.cid]).to.equal(child);
+    parent.removeChild(child);
+    expect(parent.children[child.cid]).to.be["undefined"];
+  });
+
+  it("should fire addChild and removeChild events", function () {
+    var parent = new Handlebones.View();
+    var child = new Handlebones.View();
+    var addChildSpy = sinon.spy(function (view) {
+      expect(view).to.equal(child);
+    });
+    var removeChildSpy = sinon.spy(function (view) {
+      expect(view).to.equal(child);
+    });
+    parent.listenTo(parent, "addChild", addChildSpy);
+    parent.listenTo(parent, "removeChild", removeChildSpy);
+    parent.addChild(child);
+    expect(addChildSpy.callCount).to.equal(1);
+    parent.removeChild(child);
+    expect(removeChildSpy.callCount).to.equal(1);
+  });
 });

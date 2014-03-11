@@ -170,3 +170,33 @@ describe("addChild & removeChild", function () {
     expect(removeChildSpy.callCount).to.equal(1);
   });
 });
+
+describe("LayoutView", function () {
+  it("should append and render a view", function () {
+    var layout = new Handlebones.LayoutView();
+    var view = new (Handlebones.View.extend({
+      id: "test-view",
+      template: Handlebars.compile("test")
+    }));
+    layout.appendTo(document.getElementById("fixture"));
+    layout.setView(view);
+    expect(layout.getView()).to.equal(view);
+    expect(document.getElementById("test-view").innerHTML).to.equal("test");
+  });
+
+  it("should allow a callback option", function () {
+    var layout = new Handlebones.LayoutView();
+    var view = new (Handlebones.View.extend({
+      id: "test-view",
+      template: Handlebars.compile("test")
+    }));
+    layout.appendTo(document.getElementById("fixture"));
+    layout.setView(view, function (view, oldView, append, remove) {
+      append();
+      remove();
+      expect(layout.getView()).to.equal(view);
+      expect(document.getElementById("test-view").innerHTML).to.equal("test");
+    });
+  });
+
+});

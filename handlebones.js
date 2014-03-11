@@ -200,7 +200,9 @@
         this.el.removeAttribute(viewNameAttributeName);
       }
       this.el.removeAttribute(viewCidAttributeName);
-      return Backbone.View.prototype.remove.apply(this, arguments);
+      var response = Backbone.View.prototype.remove.apply(this, arguments);
+      this.trigger("remove");
+      return response;
     },
     // Private and undocumented methods
     toString: function () {
@@ -224,16 +226,17 @@
 
   // LayoutView
   Handlebones.LayoutView = Handlebones.View.extend({
-    _renderCount: 1,
     render: function () {
-      // NOOP as we never want to do anything
+      // Basically a noop
+      ++this._renderCount;
+      return this;
     },
-    setView: function (view, options) {
+    setView: function (view, callback) {
       var oldView = this._view,
         append,
         remove;
-      if (view === oldView && !options.force) {
-        return false;
+      if (view === oldView) {
+        return this;
       }
       remove = _.bind(function () {
         if (oldView) {
@@ -249,13 +252,13 @@
           this._view.appendTo(this.el);
         }
       }, this);
-      if (!options.transition) {
+      if (!callback) {
         remove();
         append();
       } else {
-        options.transition(view, oldView, append, remove);
+        callback(view, oldView, append, remove);
       }
-      return view;
+      return this;
     },
     getView: function () {
       return this._view;
@@ -474,15 +477,15 @@
   }
 
   Handlebars.registerHelper("view", function (view, options) {
+    if (options.fn) {
+      viewTemplateOverrides[view.cid] = options.fn;
+    }
     var htmlAttributes = {
       // ensure generated placeholder tag in template
       // will match tag of view instance
       tagName: view.el.tagName.toLowerCase()
     };
-    if (options.fn) {
-      viewTemplateOverrides[view.cid] = options.fn;
-    }
-    htmlAttributes[viewPlaceholderAttributeName] = view.cid;
+    htmlAttributes[viewPlaceholderAttributeName] = this.cid;
     var output = Handlebones.Util.tag(htmlAttributes, "", this);
     return new Handlebars.SafeString(output);
   });

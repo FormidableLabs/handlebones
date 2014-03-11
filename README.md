@@ -12,6 +12,7 @@ TODO: add expand-tokens support
 ### template
 ### context
 ### render
+- render event
 
 ## Lifecycle
 ### appendTo
@@ -20,20 +21,23 @@ TODO: add expand-tokens support
 ### ready event
   - target param
   Will fire on every appendTo, even if there are multiple
-### remove
+### remove & event
   Should only be used once
 
+## Children
 
-## addChild
-## removeChild
+## addChild & event
+## removeChild & event
 ## children
 ## parent
-
+## Garbage collection
+- make sure to use `appendTo` and `remove`
+- override `remove`
+- use `addChild` and `removeChild` events
 
 # LayoutView
 ## setView
-  - force param
-  - transition param
+- callback option
 ## getView
 
 # CollectionView
@@ -41,12 +45,10 @@ TODO: add expand-tokens support
 ## itemView
 ## emptyView
 ## emptyClass
-## appendItem
-## removeItem
+## appendItem & event
+## removeItem & event
 ## itemFilter
 ## updateFilter
-
-## removed event
 
 # Util
 

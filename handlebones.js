@@ -116,7 +116,7 @@
     if (!this._isReady) {
       this._isReady = true;
       _.each(this.children, triggerReadyOnChild);
-      this.listenTo("addChild", triggerReadyOnChild);
+      this.listenTo(this, "addChild", triggerReadyOnChild);
     }
   }
 
@@ -150,20 +150,6 @@
   }
 
   Handlebones.View = Backbone.View.extend({
-    addChild: function (view) {
-      if (this.children[view.cid]) {
-        return view;
-      }
-      this.children[view.cid] = view;
-      this.trigger("addChild", view);
-      return this;
-    },
-    removeChild: function (view) {
-      view.parent = null;
-      delete this.children[view.cid];
-      this.trigger("removeChild", view);
-      return this;
-    },
     template: Handlebars.VM.noop,
     render: function () {
       var html = this.template(this.context());
@@ -182,7 +168,7 @@
         el();
       } else {
         if (hasDOMLib) {
-          this.$el.append(el);
+          this.$el.appendTo(el);
         } else {
           el.appendChild(this.el);
         }
@@ -190,18 +176,39 @@
       this.trigger("ready", {
         target: this
       });
+      return this;
     },
-    // Private and undocumented methods
+    addChild: function (view) {
+      if (this.children[view.cid]) {
+        return view;
+      }
+      this.children[view.cid] = view;
+      this.trigger("addChild", view);
+      return this;
+    },
+    removeChild: function (view) {
+      view.parent = null;
+      delete this.children[view.cid];
+      this.trigger("removeChild", view);
+      return this;
+    },
     remove: function () {
       delete viewsIndexedByCid[this.cid];
+      if (this.name) {
+        this.el.removeAttribute(viewNameAttributeName);
+      }
+      this.el.removeAttribute(viewCidAttributeName);
       return Backbone.View.prototype.remove.apply(this, arguments);
     },
+    // Private and undocumented methods
     toString: function () {
       return "[object Handlebones.View." + (this.name || this.cid) + "]";
     },
     setElement : function () {
       var response = Backbone.View.prototype.setElement.apply(this, arguments);
-      this.name && this.el.setAttribute(viewNameAttributeName, this.name);
+      if (this.name) {
+        this.el.setAttribute(viewNameAttributeName, this.name);
+      }
       this.el.setAttribute(viewCidAttributeName, this.cid);
       return response;
     },

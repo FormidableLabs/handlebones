@@ -5,6 +5,7 @@
   </head>
   <body>
     <div id="mocha"></div>
+    <div id="fixture"></div>
     <script src="jquery/dist/jquery.js"></script>
     <script src="underscore/underscore.js"></script>
     <script src="backbone/backbone.js"></script>
@@ -19,8 +20,11 @@
     </script>
     <script src="test.js"></script>
     <script>
-      if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
-      else { mocha.run(); }
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
     </script>
   </body>
 </html>

@@ -3,17 +3,28 @@ TODO: add expand-tokens support
 
 # View
 
-## name attr
+## attributes
+### name
+### data-view-name
+### data-view-cid
+
+## rendering
+### template
+### context
+### render
+
+## DOM insertion
+### appendTo
+  - custom operation
+### ready event
+  - target param
+
+
 ## addChild
 ## removeChild
 ## children
 ## parent
-## template
-## render
-## ready event
-  - target param
-## appendTo
-  - custom operation
+
 
 # LayoutView
 ## setView

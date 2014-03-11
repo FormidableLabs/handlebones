@@ -1,7 +1,13 @@
-describe('Array', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
-      (1).should.equal(1);
-    })
-  })
-})
+var expect = chai.expect;
+
+describe("bar", function () {
+  it("foo", function () {
+    var foo = "bar";
+    
+    
+    expect(foo).to.be.a('string');
+    expect(foo).to.equal('bar');
+    expect(foo).to.have.length(3);
+  });
+});
+

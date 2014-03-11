@@ -6,14 +6,38 @@ var gulp = require("gulp"),
   clean = require("gulp-clean"),
   connect = require("gulp-connect");
 
-gulp.task("mocha", ["lint"], function () {
-  gulp.src("test.js")
-    .pipe(mocha({
-      reporter: "nyan"
-    }));
+gulp.task("mocha", ["connect", "dist"], function () {
+  var exec = require("child_process").exec,
+    cmd = "mocha-phantomjs http://localhost:8080/native.html",
+    child = exec(cmd, function (error, stdout, stderr) {
+      if (error) {
+        throw error;
+      }
+      if (stdout) {
+        process.stdout.write(stdout);
+      }
+      if (stderr) {
+        process.stderr.write(stderr);
+      }
+      process.exit();
+    });
 });
 
-gulp.task("compress", ["mocha"], function() {
+gulp.task("connect", connect.server({
+  root: ["test", "bower_components", __dirname],
+  livereload: false,
+  port: 8080
+}));
+
+gulp.task("dist", ["move-map"], function () {
+  return gulp.src("./dist", {
+    read: false
+  }).pipe(clean({
+    force: true
+  }));
+});
+
+gulp.task("compress", function() {
   return gulp.src("./handlebones.js")
     .pipe(uglify({
       outSourceMap: true
@@ -27,19 +51,9 @@ gulp.task("move-dist", ["compress"], function () {
     .pipe(gulp.dest("."));
 });
 
-// TODO: probably a better way to combine
-
 gulp.task("move-map", ["move-dist"], function () {
   return gulp.src("./dist/handlebones.js.map")
     .pipe(gulp.dest("."));
-});
-
-gulp.task("dist", ["move-map"], function () {
-  return gulp.src("./dist", {
-    read: false
-  }).pipe(clean({
-    force: true
-  }));
 });
 
 gulp.task("lint", function() {
@@ -48,10 +62,5 @@ gulp.task("lint", function() {
     .pipe(jshint.reporter("default"));
 });
 
-gulp.task("connect", connect.server({
-  root: ["test", "bower_components"],
-  livereload: false,
-  port: 8080
-}));
 
-gulp.task("default", ["mocha"]);
+gulp.task("default", ["lint", "mocha", "dist"]);

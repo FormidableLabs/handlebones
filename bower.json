@@ -8,8 +8,10 @@
     "handlebars": "1.1.2"
   },
   "devDependencies": {
-    "jasmine": "2.0.0",
-    "jquery": "2.1.0"
+    "mocha": "1.17.1",
+    "chai": "1.9.0",
+    "jquery": "2.1.0",
+    "sinon": "1.9.0"
   },
   "ignore": [
     "node_modules",

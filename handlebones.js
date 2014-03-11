@@ -116,7 +116,7 @@
     if (!this._isReady) {
       this._isReady = true;
       _.each(this.children, triggerReadyOnChild);
-      this.listenTo("child", triggerReadyOnChild);
+      this.listenTo("addChild", triggerReadyOnChild);
     }
   }
 
@@ -155,12 +155,13 @@
         return view;
       }
       this.children[view.cid] = view;
-      this.trigger("child", view);
+      this.trigger("addChild", view);
       return this;
     },
     removeChild: function (view) {
       view.parent = null;
       delete this.children[view.cid];
+      this.trigger("removeChild", view);
       return this;
     },
     template: Handlebars.VM.noop,
@@ -235,7 +236,7 @@
         this._view = view;
         if (view) {
           ensureRendered.call(view);
-          this._addChild(view);
+          this.addChild(view);
           this._view.appendTo(this.el);
         }
       }, this);
@@ -536,12 +537,15 @@
   elementAddEventListener.call(document, "readystatechange", function () {
     if (document.readyState === "complete") {
       elementAddEventListener.call(document.body, "click", function (event) {
-        var href = event.target.getAttribute("href");
-        // Route anything that starts with # or / (excluding //domain urls)
-        if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
-          Backbone.history.navigate(href, {
-            trigger: true
-          });
+        // Don't push if meta or shift key are clicked
+        if (!event.metaKey && event.shiftKey) {
+          var href = event.target.getAttribute("href");
+          // Route anything that starts with # or / (excluding //domain urls)
+          if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
+            Backbone.history.navigate(href, {
+              trigger: true
+            });
+          }
         }
         if (event.preventDefault) {
           event.preventDefault();

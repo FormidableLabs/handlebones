@@ -156,6 +156,7 @@
       replaceHTML.call(this, html);
       appendChildViews.call(this);
       ++this._renderCount;
+      this.trigger("render");
       return this;
     },
     context: function () {

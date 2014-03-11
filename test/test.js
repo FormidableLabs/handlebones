@@ -66,6 +66,17 @@ describe("template, render & context", function () {
     expect(view.el.innerHTML).to.equal("test");
   });
 
+  it("should trigger render event", function () {
+    var spy = sinon.spy();
+    var view = new (Handlebones.View.extend({
+      initialize: function () {
+        this.listenTo(this, "render", spy);
+      }
+    }));
+    view.render();
+    expect(spy.callCount).to.equal(1);
+  });
+
   it("should render a template with context", function () {
     var view = new (Handlebones.View.extend({
       template: Handlebars.compile("{{key}}"),
@@ -87,6 +98,34 @@ describe("appendTo & ready", function () {
       template: Handlebars.compile("test")
     }));
     view.appendTo(document.getElementById("fixture"));
+    expect(document.getElementById("test-view").innerHTML).to.equal("test");
+  });
+
+  it("should fire ready event when appended", function () {
+    var spy = sinon.spy();
+    var view = new (Handlebones.View.extend({
+      id: "test-view",
+      template: Handlebars.compile("test"),
+      initialize: function () {
+        this.listenTo(this, "ready", spy);
+      }
+    }));
+    view.appendTo(document.getElementById("fixture"));
+    expect(spy.callCount).to.equal(1);
+
+    // will fire multiple times
+    view.appendTo(document.getElementById("fixture"));
+    expect(spy.callCount).to.equal(2);
+  });
+
+  it("should allow a custom appendTo insertion operation", function () {
+    var view = new (Handlebones.View.extend({
+      id: "test-view",
+      template: Handlebars.compile("test")
+    }));
+    view.appendTo(function () {
+      document.getElementById("fixture").appendChild(view.el);
+    });
     expect(document.getElementById("test-view").innerHTML).to.equal("test");
   });
 });

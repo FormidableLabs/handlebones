@@ -3,21 +3,25 @@ TODO: add expand-tokens support
 
 # View
 
-## attributes
+## Attributes
 ### name
 ### data-view-name
 ### data-view-cid
 
-## rendering
+## Rendering
 ### template
 ### context
 ### render
 
-## DOM insertion
+## Lifecycle
 ### appendTo
   - custom operation
+  Must use to get ready event
 ### ready event
   - target param
+  Will fire on every appendTo, even if there are multiple
+### remove
+  Should only be used once
 
 
 ## addChild

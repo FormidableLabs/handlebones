@@ -13,6 +13,7 @@ TODO: add expand-tokens support
 ### context
 ### render
 - render event
+- custom content instead of template
 
 ## Lifecycle
 ### appendTo
@@ -57,9 +58,11 @@ TODO: add expand-tokens support
 # Helpers
 
 ## url
+- encode
+- multiple args
 ## link
 ## view
-## collection
+- must use addChild!
 
 ## $.view
 

@@ -128,16 +128,22 @@
   }
 
   function ensureRendered() {
-    !this._renderCount && this.render();
+    if (!this._renderCount) {
+      this.render();
+    }
   }
 
   function replaceHTML(html) {
+    // Normalize Handlebars.SafeString
+    if (html && html.string) {
+      html = html.string;
+    }
     if (hasDOMLib) {
       // We want to pull our elements out of the tree if we are under jQuery
       // or IE as both have the tendancy to mangle the elements we want to reuse
       // on cleanup. This could leak event binds if users are performing custom binds
       // but this generally not recommended.
-      if (this._renderCount && (isIE || $.fn.jquery)) {
+      if (this._renderCount && (isIE || ($.fn && $.fn.jquery))) {
         while (this.el.hasChildNodes()) {
           this.el.removeChild(this.el.childNodes[0]);
         }
@@ -151,9 +157,16 @@
 
   Handlebones.View = Backbone.View.extend({
     template: Handlebars.VM.noop,
-    render: function () {
-      var html = this.template(this.context());
-      replaceHTML.call(this, html);
+    render: function (html) {
+      var output;
+      if (_.isFunction(html)) {
+        output = html(this.context());
+      } else if (_.isString(html)) {
+        output = html;
+      } else {
+        output = this.template(this.context());
+      }
+      replaceHTML.call(this, output);
       appendChildViews.call(this);
       ++this._renderCount;
       this.trigger("render");
@@ -186,13 +199,13 @@
       view.parent = this;
       this.children[view.cid] = view;
       this.trigger("addChild", view);
-      return this;
+      return view;
     },
     removeChild: function (view) {
       delete view.parent;
       delete this.children[view.cid];
       this.trigger("removeChild", view);
-      return this;
+      return view;
     },
     remove: function () {
       delete viewsIndexedByCid[this.cid];
@@ -229,6 +242,7 @@
     render: function () {
       // Basically a noop
       ++this._renderCount;
+      this.trigger("render");
       return this;
     },
     setView: function (view, callback) {
@@ -356,6 +370,7 @@
         }, this);
       }
       ++this._renderCount;
+      this.trigger("render");
       return this;
     },
     appendItem: function (model, index) {
@@ -399,7 +414,7 @@
 
   // Util
 
-  function deref(token, scope) {
+  function deref(token, scope, encode) {
     if (token.match(/^("|')/) && token.match(/("|')$/)) {
       return token.replace(/(^("|')|('|")$)/g, "");
     }
@@ -410,7 +425,11 @@
         scope = scope[segments[i]];
       }
     }
-    return scope;
+    if (encode && _.isString(scope)) {
+      return encodeURIComponent(scope);
+    } else {
+      return scope;
+    }
   }
 
   Handlebones.Util = {
@@ -426,13 +445,13 @@
         return (key === "className" ? "class" : key) + "=\"" + formattedValue + "\"";
       }).join(" ") + ">" + (_.isUndefined(content) ? "" : content) + "</" + tag + ">";
     },
-    expandToken: function (input, scope) {
+    expandToken: function (input, scope, encode) {
       if (input && input.indexOf && input.indexOf("{{") >= 0) {
         var re = /(?:\{?[^{]+)|(?:\{\{([^}]+)\}\})/g,
             match,
             ret = [];
         var mapper = function (param) {
-          return deref(param, scope);
+          return deref(param, scope, encode);
         };
         while (match = re.exec(input)) {
           if (match[1]) {
@@ -447,7 +466,7 @@
                 ret.push(match[0]);
               }
             } else {
-              ret.push(deref(params[0], scope));
+              ret.push(deref(params[0], scope, encode));
             }
           } else {
             ret.push(match[0]);
@@ -477,6 +496,9 @@
   }
 
   Handlebars.registerHelper("view", function (view, options) {
+    if (!view) {
+      return "";
+    }
     if (options.fn) {
       viewTemplateOverrides[view.cid] = options.fn;
     }
@@ -485,13 +507,13 @@
       // will match tag of view instance
       tagName: view.el.tagName.toLowerCase()
     };
-    htmlAttributes[viewPlaceholderAttributeName] = this.cid;
+    htmlAttributes[viewPlaceholderAttributeName] = view.cid;
     var output = Handlebones.Util.tag(htmlAttributes, "", this);
     return new Handlebars.SafeString(output);
   });
 
   function appendChildViews() {
-    var placeholders = document.querySelectorAll("[" + viewPlaceholderAttributeName + "]");
+    var placeholders = this.el.querySelectorAll("[" + viewPlaceholderAttributeName + "]");
     _.each(placeholders, function (el) {
       var placeholderId = el.getAttribute(viewPlaceholderAttributeName),
           view = this.children[placeholderId];
@@ -504,7 +526,7 @@
         } else {
           ensureRendered.call(view);
         }
-        el.parentNode.replaceChild(el, view.el);
+        el.parentNode.replaceChild(view.el, el);
       }
     }, this);
   }
@@ -515,7 +537,7 @@
     if (arguments.length > 2) {
       fragment = _.map(_.head(arguments, arguments.length - 1), encodeURIComponent).join("/");
     } else {
-      fragment = Handlebones.Util.expandToken(url, this);
+      fragment = Handlebones.Util.expandToken(url, this, true);
     }
     if (Backbone.history._hasPushState) {
       var root = Backbone.history.options.root;

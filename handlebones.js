@@ -74,7 +74,6 @@
     linkAttributeName = "data-history-link",
     viewPlaceholderAttributeName = "data-view-tmp",
     modelCidAttributeName = "data-model-cid",
-    viewTemplateOverrides = {},
     viewsIndexedByCid = {},
     isIE11 = !!navigator.userAgent.match(/Trident\/7\./),
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
@@ -499,8 +498,8 @@
     if (!view) {
       return "";
     }
-    if (options.fn) {
-      viewTemplateOverrides[view.cid] = options.fn;
+    if (options.fn && options.fn !== Handlebars.VM.noop) {
+      view.template = options.fn;
     }
     var htmlAttributes = {
       // ensure generated placeholder tag in template
@@ -518,14 +517,7 @@
       var placeholderId = el.getAttribute(viewPlaceholderAttributeName),
           view = this.children[placeholderId];
       if (view) {
-        // see if the view helper declared an override for the view
-        // if not, ensure the view has been rendered at least once
-        if (viewTemplateOverrides[placeholderId]) {
-          view.render(viewTemplateOverrides[placeholderId]);
-          delete viewTemplateOverrides[placeholderId];
-        } else {
-          ensureRendered.call(view);
-        }
+        ensureRendered.call(view);
         el.parentNode.replaceChild(view.el, el);
       }
     }, this);

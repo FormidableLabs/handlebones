@@ -233,6 +233,11 @@
     _ensureElement: function () {
       configureView.call(this);
       return Backbone.View.prototype._ensureElement.call(this);
+    },
+    _onViewHelper: function (options) {
+      if (options.fn && options.fn !== Handlebars.VM.noop) {
+        this.template = options.fn;
+      }
     }
   });
 
@@ -498,8 +503,8 @@
     if (!view) {
       return "";
     }
-    if (options.fn && options.fn !== Handlebars.VM.noop) {
-      view.template = options.fn;
+    if (view._onViewHelper) {
+      view._onViewHelper(options);
     }
     var htmlAttributes = {
       // ensure generated placeholder tag in template

@@ -280,7 +280,9 @@
     },
     getView: function () {
       return this._view;
-    }
+    },
+    // noop, as LayoutView cannot accept a template
+    _onViewHelper: false
   });
 
   // CollectionView
@@ -298,7 +300,13 @@
     this.emptyClass && addClassName.call(this.el, this.emptyClass);
     replaceHTML.call(this, "");
     if (this.emptyView) {
-      this._emptyViewInstance = new this.emptyView();
+      if (this._emptyViewTemplate) {
+        this._emptyViewInstance = new (this.emptyView.extend({
+          template: this._emptyViewTemplate
+        }))();
+      } else {
+        this._emptyViewInstance = new this.emptyView();
+      }
       this.addChild(this._emptyViewInstance);
       this._emptyViewInstance.appendTo(this.el);
     }
@@ -378,9 +386,18 @@
       return this;
     },
     appendItem: function (model, index) {
-      var view = new this.itemView({
-        model: model
-      });
+      var view;
+      if (this._itemViewTemplate) {
+        view = new (this.itemView.extend({
+          template: this._itemViewTemplate
+        }))({
+          model: model
+        });
+      } else {
+        view = new this.itemView({
+          model: model
+        });
+      }
       this.addChild(view);
       var previousModel = index > 0 ? this.collection.at(index - 1) : false;
       if (!previousModel) {
@@ -413,6 +430,14 @@
     },
     updateFilter: function () {
       applyVisibilityFilter.call(this);
+    },
+    _onViewHelper: function (options) {
+      if (options.fn && options.fn !== Handlebars.VM.noop) {
+        this._itemViewTemplate = options.fn;
+      }
+      if (options.inverse && options.inverse !== Handlebars.VM.noop) {
+        this._emptyViewTemplate = options.inverse;
+      }
     }
   });
 

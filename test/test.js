@@ -262,6 +262,33 @@ describe("LayoutView", function () {
   });
 });
 
+describe("ModelView", function () {
+  it("should have a data-model-cid attribute", function () {
+    var model = new Backbone.Model();
+    var view = new Handlebones.ModelView({
+      model: model
+    });
+    expect(view.el.getAttribute("data-model-cid")).to.equal(model.cid);
+  });
+
+  it("should render on model change", function () {
+    var model = new Backbone.Model();
+    var view = new (Handlebones.ModelView.extend({
+      template: Handlebars.compile("{{key}}")
+    }))({
+      model: model,
+    });
+    model.set({
+      key: "one"
+    });
+    expect(view.el.innerHTML).to.equal("one");
+    model.set({
+      key: "two"
+    });
+    expect(view.el.innerHTML).to.equal("two");
+  });
+});
+
 describe("url helper", function() {
   it("should do a basic join and param substitution", function() {
     var href = Handlebars.helpers.url.call({}, "/a/{{b}}");

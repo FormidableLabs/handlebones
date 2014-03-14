@@ -326,14 +326,17 @@
   }
 
   Handlebones.ModelView = Handlebones.View.extend({
-    _ensureElement: function () {
-      var response = Handlebones.View.prototype._ensureElement.apply(this, arguments);
-      this.el.setAttribute(modelCidAttributeName, this.model.cid);
-      return response;
+    initialize: function () {
+      this.listenTo(this.model, "change", this.render);
     },
     context: function () {
       return this.model.attributes;
-    }
+    },
+    setElement: function () {
+      var response = Handlebones.View.prototype.setElement.apply(this, arguments);
+      this.el.setAttribute(modelCidAttributeName, this.model.cid);
+      return response;
+    },
   });
 
   Handlebones.CollectionView = Handlebones.View.extend({

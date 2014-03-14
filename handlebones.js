@@ -283,7 +283,7 @@
   // CollectionView
 
   function handleChangeFromEmptyToNotEmpty() {
-    this.emptyClass && removeClassName.call(this.el, this.emptyClass);
+    this.emptyClassName && removeClassName.call(this.el, this.emptyClassName);
     if (this._emptyViewInstance) {
       this._emptyViewInstance.remove();
       this.removeChild(this._emptyViewInstance);
@@ -292,7 +292,7 @@
   }
   
   function handleChangeFromNotEmptyToEmpty() {
-    this.emptyClass && addClassName.call(this.el, this.emptyClass);
+    this.emptyClassName && addClassName.call(this.el, this.emptyClassName);
     replaceHTML.call(this, "");
     if (this.emptyView) {
       this._emptyViewInstance = new this.emptyView();
@@ -339,7 +339,7 @@
   Handlebones.CollectionView = Handlebones.View.extend({
     modelView: Handlebones.ModelView,
     emptyView: Handlebones.View,
-    emptyClass: "empty",
+    emptyClassName: "empty",
     modelFilter: false,
     initialize: function () {
       this.listenTo(this.collection, {

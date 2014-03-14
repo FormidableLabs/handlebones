@@ -45,7 +45,7 @@ TODO: add expand-tokens support
 
 ## modelView
 ## emptyView
-## emptyClass
+## emptyClassName
 ## appendModel & event
 ## removeModel & event
 ## modelFilter
@@ -65,7 +65,6 @@ TODO: add expand-tokens support
 - must use addChild!
 
 ## $.view
-
 
 ## Testing
 

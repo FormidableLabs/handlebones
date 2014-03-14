@@ -108,7 +108,9 @@
   // View
 
   function triggerReadyOnChild(child) {
-    child._isReady || child.trigger("ready");
+    if (!child._isReady) {
+      child.trigger("ready");
+    }
   }
 
   function onReady() {
@@ -293,13 +295,7 @@
     this.emptyClass && addClassName.call(this.el, this.emptyClass);
     replaceHTML.call(this, "");
     if (this.emptyView) {
-      if (this._emptyViewTemplate) {
-        this._emptyViewInstance = new (this.emptyView.extend({
-          template: this._emptyViewTemplate
-        }))();
-      } else {
-        this._emptyViewInstance = new this.emptyView();
-      }
+      this._emptyViewInstance = new this.emptyView();
       this.addChild(this._emptyViewInstance);
       this._emptyViewInstance.appendTo(this.el);
     }

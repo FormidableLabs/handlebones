@@ -2,6 +2,26 @@ var expect = chai.expect;
 
 Backbone.history.start();
 
+function generateChild () {
+  return new (Handlebones.View.extend({
+    name: "child",
+    tagName: "li",
+    template: Handlebars.compile("test")
+  }));
+}
+
+function generateParent () {
+  return new (Handlebones.View.extend({
+    name: "parent",
+    template: Handlebars.compile("<ul>{{view child}}</ul>"),
+    context: function () {
+      return {
+        child: this.child
+      };
+    }
+  }));
+}
+
 afterEach(function () {
   document.getElementById("fixture").innerHTML = "";
 });
@@ -185,6 +205,32 @@ describe("addChild & removeChild", function () {
     parent.removeChild(child);
     expect(removeChildSpy.callCount).to.equal(1);
   });
+
+  it("should fire ready on children", function () {
+    var parent = generateParent();
+    var child = generateChild();
+    parent.addChild(child);
+    var parentSpy = sinon.spy();
+    var childSpy = sinon.spy();
+    parent.listenTo(parent, "ready", parentSpy);
+    child.listenTo(child, "ready", childSpy);
+    parent.trigger("ready");
+    expect(parentSpy.callCount).to.equal(1);
+    expect(childSpy.callCount).to.equal(1);
+  });
+
+  it("should fire ready on children immediately if parent is ready", function () {
+    var parent = generateParent();
+    var child = generateChild();
+    var parentSpy = sinon.spy();
+    var childSpy = sinon.spy();
+    parent.listenTo(parent, "ready", parentSpy);
+    child.listenTo(child, "ready", childSpy);
+    parent.trigger("ready");
+    parent.addChild(child);
+    expect(parentSpy.callCount).to.equal(1);
+    expect(childSpy.callCount).to.equal(1);
+  });
 });
 
 describe("LayoutView", function () {
@@ -286,26 +332,6 @@ describe("link helper", function () {
 });
 
 describe("view helper", function () {
-  function generateChild () {
-    return new (Handlebones.View.extend({
-      name: "child",
-      tagName: "li",
-      template: Handlebars.compile("test")
-    }));
-  }
-
-  function generateParent () {
-    return new (Handlebones.View.extend({
-      name: "parent",
-      template: Handlebars.compile("<ul>{{view child}}</ul>"),
-      context: function () {
-        return {
-          child: this.child
-        };
-      }
-    }));
-  }
-
   it("should fail silently when no view initialized", function () {
     var parent = generateParent();
     parent.render();

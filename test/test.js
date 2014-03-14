@@ -1,7 +1,5 @@
 var expect = chai.expect;
 
-Backbone.history.start();
-
 function generateChild () {
   return new (Handlebones.View.extend({
     name: "child",
@@ -449,75 +447,6 @@ describe("CollectionView", function () {
     expect(view.$("li").length).to.equal(1);
     expect(view.$("li")[0].innerHTML).to.equal("empty");
     expect(view.el.className).to.equal("empty");
-  });
-});
-
-describe("url helper", function() {
-  it("should do a basic join and param substitution", function() {
-    var href = Handlebars.helpers.url.call({}, "/a/{{b}}");
-    expect(href).to.equal("#/a/");
-    href = Handlebars.helpers.url.call({b: "b"}, "/a/{{b}}");
-    expect(href).to.equal("#/a/b");
-    href = Handlebars.helpers.url.call({b: "c"}, "/a/{{b}}");
-    expect(href).to.equal("#/a/c");
-    href = Handlebars.helpers.url("a", "c", {});
-    expect(href).to.equal("#a/c");
-  });
-
-  it("url encoded params", function () {
-    var slug = "hello world, sup!",
-        actual = Handlebars.helpers.url("articles", slug, {}),
-        expected = "#articles/hello%20world%2C%20sup!";
-    expect(actual).to.eq(expected);
-
-    var context = {slug: "hello world, sup!"},
-        actual = Handlebars.helpers.url.call(context, "/articles/{{slug}}"),
-        expected = "#/articles/hello%20world%2C%20sup!";
-
-    expect(actual).to.eq(expected);
-  });
-
-  it("should work with pushState: true", function () {
-    before(function() {
-      this.previousPushState = Backbone.history._hasPushState;
-      Backbone.history._hasPushState = true;
-    });
-  
-    after(function() {
-      Backbone.history._hasPushState = this.previousPushState;
-    });
-  
-    it("should not have double slashes if the argument starts with a slash", function() {
-      var url = Handlebars.helpers.url("/a");
-      expect(url).to.equal('/a');
-    });
-  });
-});
-
-describe("link helper", function () {
-  it("should allow multiple arguments to link", function() {
-    var view = new (Handlebones.View.extend({
-      template: Handlebars.compile("{{#link a b c class=\"test\"}}link{{/link}}"),
-      context: function () {
-        return {
-          a: "a",
-          b: "b",
-          c: "c"
-        };
-      }
-    }));
-    view.render();
-    expect(view.$("a")[0].className).to.equal("test");
-    expect(view.$("a")[0].getAttribute("href")).to.equal("#a/b/c");
-  });
-
-  it("should allow empty string as link", function() {
-    var test = Handlebars.compile("bl")();
-    var view = new (Handlebones.View.extend({
-      template: Handlebars.compile("{{#link \"\"}}text{{/link}}")
-    }));
-    view.render();
-    expect(view.$("a")[0].innerHTML).to.equal("text");
   });
 });
 

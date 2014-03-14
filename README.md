@@ -54,10 +54,6 @@
 
 # Helpers
 
-## url
-- encode
-- multiple args
-## link
 ## view
 - must use addChild!
 
@@ -85,3 +81,13 @@ To run tests in browser
 - AMD bundled jQuery
 - AMD unbundled Zepto
 - AMD bundled Zepto
+
+# TODO
+
+- move normalize tag tagName / class className into Handlebones.Util.tag
+- remove url and link helpers
+- create generator-handlebones-plugin
+- travis CI integration
+- sauce labs integration
+- handlebones generator
+- DOM tests for handlebones-url-link-helpers

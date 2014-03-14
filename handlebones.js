@@ -537,65 +537,6 @@
     }, this);
   }
 
-  Handlebars.registerHelper("url", function (url) {
-    url = url || "";
-    var fragment;
-    if (arguments.length > 2) {
-      fragment = _.map(_.head(arguments, arguments.length - 1), encodeURIComponent).join("/");
-    } else {
-      fragment = Handlebones.Util.expandToken(url, this, true);
-    }
-    if (Backbone.history._hasPushState) {
-      var root = Backbone.history.options.root;
-      if (root === "/" && fragment.substr(0, 1) === "/") {
-        return fragment;
-      } else {
-        return root + fragment;
-      }
-    } else {
-      return "#" + fragment;
-    }
-  });
-
-  Handlebars.registerHelper("link", function () {
-    var args = _.toArray(arguments),
-      options = args.pop(),
-      hash = options.hash,
-      // url is an array that will be passed to the url helper
-      url = args.length === 0 ? [hash.href] : args;
-    normalizeHTMLAttributeOptions(hash);
-    url.push(options);
-    hash.href = Handlebars.helpers.url.apply(this, url);
-    hash.tagName = hash.tagName || "a";
-    hash[linkAttributeName] = true;
-    var output = Handlebones.Util.tag(hash, options.fn ? options.fn(this) : "", this);
-    return new Handlebars.SafeString(output);
-  });
-
-  // Handler for link helper clicks
-
-  elementAddEventListener.call(document, "readystatechange", function () {
-    if (document.readyState === "complete") {
-      elementAddEventListener.call(document.body, "click", function (event) {
-        // Don't push if meta or shift key are clicked
-        if (!event.metaKey && event.shiftKey && event.target.getAttribute(linkAttributeName)) {
-          var href = event.target.getAttribute("href");
-          // Route anything that starts with # or / (excluding //domain urls)
-          if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
-            Backbone.history.navigate(href, {
-              trigger: true
-            });
-          }
-        }
-        if (event.preventDefault) {
-          event.preventDefault();
-        } else {
-          event.returnValue = false;
-        }
-      });
-    }
-  }, false);
-
   if (hasDOMLib) {
     $.fn.view = function () {
       var selector = "[" + viewCidAttributeName + "]",

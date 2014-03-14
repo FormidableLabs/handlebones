@@ -565,12 +565,14 @@
       elementAddEventListener.call(document.body, "click", function (event) {
         // Don't push if meta or shift key are clicked
         if (!event.metaKey && event.shiftKey) {
-          var href = event.target.getAttribute("href");
-          // Route anything that starts with # or / (excluding //domain urls)
-          if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
-            Backbone.history.navigate(href, {
-              trigger: true
-            });
+          if (event.target.getAttribute(linkAttributeName)) {
+            var href = event.target.getAttribute("href");
+            // Route anything that starts with # or / (excluding //domain urls)
+            if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
+              Backbone.history.navigate(href, {
+                trigger: true
+              });
+            }
           }
         }
         if (event.preventDefault) {

@@ -306,17 +306,17 @@
   }
 
   function applyVisibilityFilter() {
-    if (this.itemFilter) {
-      this.collection.forEach(applyItemVisiblityFilter, this);
+    if (this.modelFilter) {
+      this.collection.forEach(applyModelVisiblityFilter, this);
     }
   }
   
-  function applyItemVisiblityFilter(model) {
-    if (this.itemFilter) {
+  function applyModelVisiblityFilter(model) {
+    if (this.modelFilter) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
         els = this.el.querySelectorAll(selector);
       _.each(els, function (el) {
-        if (itemShouldBeVisible.call(this, model)) {
+        if (modelShouldBeVisible.call(this, model)) {
           el.style.display = "block";
         } else {
           el.style.display = "none";
@@ -325,11 +325,11 @@
     }
   }
   
-  function itemShouldBeVisible(model) {
-    return this.itemFilter(model, this.collection.indexOf(model));
+  function modelShouldBeVisible(model) {
+    return this.modelFilter(model, this.collection.indexOf(model));
   }
 
-  Handlebones.ItemView = Handlebones.View.extend({
+  Handlebones.ModelView = Handlebones.View.extend({
     _ensureElement: function () {
       var response = Handlebones.View.prototype._ensureElement.apply(this, arguments);
       this.el.setAttribute(modelCidAttributeName, this.model.cid);
@@ -341,26 +341,26 @@
   });
 
   Handlebones.CollectionView = Handlebones.View.extend({
-    itemView: Handlebones.ItemView,
+    modelView: Handlebones.ModelView,
     emptyView: Handlebones.View,
     emptyClass: "empty",
-    itemFilter: false,
+    modelFilter: false,
     initialize: function () {
       this.listenTo(this.collection, {
         reset: "render",
         sort: "render",
         change: function (model) {
-          applyItemVisiblityFilter.call(this, model);
+          applyModelVisiblityFilter.call(this, model);
         },
         add: function (model) {
           if (this.collection.length === 1) {
             handleChangeFromEmptyToNotEmpty.call(this);
           }
           var index = this.collection.indexOf(model);
-          this.appendItem(model, index);
+          this.appendModel(model, index);
         },
         remove: function (model) {
-          this.removeItem(model);
+          this.removeModel(model);
           this.collection.length === 0 && handleChangeFromNotEmptyToEmpty.call(this);
         }
       });
@@ -371,26 +371,18 @@
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
         this.collection.forEach(function (model, i) {
-          this.appendItem(model, i);
+          this.appendModel(model, i);
         }, this);
       }
       ++this._renderCount;
       this.trigger("render");
       return this;
     },
-    appendItem: function (model, index) {
+    appendModel: function (model, index) {
       var view;
-      if (this._itemViewTemplate) {
-        view = new (this.itemView.extend({
-          template: this._itemViewTemplate
-        }))({
-          model: model
-        });
-      } else {
-        view = new this.itemView({
-          model: model
-        });
-      }
+      view = new this.modelView({
+        model: model
+      });
       this.addChild(view);
       var previousModel = index > 0 ? this.collection.at(index - 1) : false;
       if (!previousModel) {
@@ -398,7 +390,7 @@
           this.el.parentNode.insertBefore(view.el, this.el.firstChild);
         }, this));
       } else {
-        //use last() as appendItem can accept multiple nodes from a template
+        //use last() as appendModel can accept multiple nodes from a template
         var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
         var last = this.$el.children().last(selector);
 
@@ -407,18 +399,18 @@
 
         last.after(view.el);
       }
-      applyItemVisiblityFilter.call(this, model);
-      this.trigger("appendItem", model, view);
+      applyModelVisiblityFilter.call(this, model);
+      this.trigger("appendModel", model, view);
       return this;
     },
-    removeItem: function (model) {
+    removeModel: function (model) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
         el = this.el.querySelector(selector),
         viewCid = el.getAttribute(viewCidAttributeName),
         view = this.children[viewCid];
       view.remove();
       this.removeChild(view);
-      this.trigger("removeItem", model, view);
+      this.trigger("removeModel", model, view);
       return this;
     },
     updateFilter: function () {

@@ -43,12 +43,12 @@ TODO: add expand-tokens support
 
 # CollectionView
 
-## itemView
+## modelView
 ## emptyView
 ## emptyClass
-## appendItem & event
-## removeItem & event
-## itemFilter
+## appendModel & event
+## removeModel & event
+## modelFilter
 ## updateFilter
 
 # Util

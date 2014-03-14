@@ -280,6 +280,22 @@
     }
   });
 
+  // ModelView
+
+  Handlebones.ModelView = Handlebones.View.extend({
+    initialize: function () {
+      this.listenTo(this.model, "change", this.render);
+    },
+    context: function () {
+      return this.model.attributes;
+    },
+    setElement: function () {
+      var response = Handlebones.View.prototype.setElement.apply(this, arguments);
+      this.el.setAttribute(modelCidAttributeName, this.model.cid);
+      return response;
+    },
+  });
+
   // CollectionView
 
   function handleChangeFromEmptyToNotEmpty() {
@@ -325,19 +341,16 @@
     return this.modelFilter(model, this.collection.indexOf(model));
   }
 
-  Handlebones.ModelView = Handlebones.View.extend({
-    initialize: function () {
-      this.listenTo(this.model, "change", this.render);
-    },
-    context: function () {
-      return this.model.attributes;
-    },
-    setElement: function () {
-      var response = Handlebones.View.prototype.setElement.apply(this, arguments);
-      this.el.setAttribute(modelCidAttributeName, this.model.cid);
-      return response;
-    },
-  });
+  function useDocumentFragment(callback) {
+    var el = this.el,
+      $el = this.$el;
+    this.el = document.createDocumentFragment();
+    this.$el = Backbone.$(this.el);
+    callback.call(this);
+    el.appendChild(this.el);
+    this.el = el;
+    this.$el = $el;
+  }
 
   Handlebones.CollectionView = Handlebones.View.extend({
     modelView: Handlebones.ModelView,
@@ -346,8 +359,8 @@
     modelFilter: false,
     initialize: function () {
       this.listenTo(this.collection, {
-        reset: "render",
-        sort: "render",
+        reset: this.render,
+        sort: this.render,
         change: function (model) {
           applyModelVisiblityFilter.call(this, model);
         },
@@ -369,9 +382,11 @@
         handleChangeFromNotEmptyToEmpty.call(this);
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
+        //useDocumentFragment.call(this, function() {
         this.collection.forEach(function (model, i) {
           this.addModel(model, i);
         }, this);
+        //});
       }
       ++this._renderCount;
       this.trigger("render");
@@ -383,6 +398,8 @@
         model: model
       });
       this.addChild(view);
+      index = index || this.collection.indexOf(model) || 0;
+
       var previousModel = index > 0 ? this.collection.at(index - 1) : false,
         insertionPoint;
       if (!previousModel) {

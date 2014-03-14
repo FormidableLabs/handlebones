@@ -325,19 +325,79 @@ describe("CollectionView", function () {
   });
 
   it("should respond to collection add and remove", function () {
-
+    var collection = generateCollection();
+    var view = generateCollectionView(collection);
+    view.render();
+    var model = new Backbone.Model({
+      letter: "d"
+    });
+    collection.add(model);
+    expect(view.$("li").length).to.equal(4);
+    expect(view.$("li")[3].innerHTML).to.equal("d");
+    collection.remove(model);
+    expect(view.$("li").length).to.equal(3);
+    expect(view.$("li")[2].innerHTML).to.equal("c");
   });
 
-  it("should respond to collection reset and sort", function () {
+  it("should respond to collection reset", function () {
+    var collection = generateCollection();
+    var view = generateCollectionView(collection);
+    view.render();
+    collection.reset([{letter: "x"}]);
+    expect(view.$("li").length).to.equal(1);
+    expect(view.$("li")[0].innerHTML).to.equal("x");
+  });
 
+  it("should respond to collection sort", function () {
+    var collection = new Backbone.Collection([
+      {letter: "c"},
+      {letter: "b"},
+      {letter: "a"}
+    ]);
+    var view = generateCollectionView(collection);
+    view.render();
+    expect(view.$("li")[0].innerHTML).to.equal("c");
+    expect(view.$("li")[1].innerHTML).to.equal("b");
+    expect(view.$("li")[2].innerHTML).to.equal("a");
+    collection.comparator = "letter";
+    collection.sort();
+    expect(view.$("li")[0].innerHTML).to.equal("a");
+    expect(view.$("li")[1].innerHTML).to.equal("b");
+    expect(view.$("li")[2].innerHTML).to.equal("c");
   });
 
   it("should respond to model change", function () {
-    
+    var collection = generateCollection();
+    var view = generateCollectionView(collection);
+    view.render();
+    collection.at(0).set({letter: "x"});
+    expect(view.$("li")[0].innerHTML).to.equal("x");
   });
 
   it("should allow manual addModel and removeModel", function () {
-    // try normal position then arbitrary position
+    var collection = generateCollection();
+    var view = generateCollectionView(collection);
+    view.render();
+    var d = new Backbone.Model({
+      letter: "d"
+    });
+    view.addModel(d);
+    expect(view.$("li").length).to.equal(4);
+    console.log(view.el.innerHTML);
+    expect(view.$("li")[3].innerHTML).to.equal("d");
+    view.removeModel(d);
+    expect(view.$("li").length).to.equal(3);
+    // attempt arbitrary position
+    var one = new Backbone.Model({
+      letter: "one"
+    });
+    view.addModel(one, 0);
+    expect(view.$("li").length).to.equal(4);
+    expect(view.$("li")[0].innerHTML).to.equal("one");
+    expect(view.$("li")[1].innerHTML).to.equal("a");
+    view.removeModel(one);
+    expect(view.$("li").length).to.equal(3);
+    expect(view.$("li")[0].innerHTML).to.equal("a");
   });
 
   it("should allow an itemFilter", function () {
@@ -349,7 +409,7 @@ describe("CollectionView", function () {
   });
 
   it("should transition between empty and not empty", function () {
-
+    // check empty class too
   });
 });
 

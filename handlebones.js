@@ -310,7 +310,7 @@
   function applyModelVisiblityFilter(model) {
     if (this.modelFilter) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
-        els = this.el.querySelectorAll(selector);
+        els = this.$(selector);
       _.each(els, function (el) {
         if (modelShouldBeVisible.call(this, model)) {
           el.style.display = "block";
@@ -356,7 +356,7 @@
             handleChangeFromEmptyToNotEmpty.call(this);
           }
           var index = this.collection.indexOf(model);
-          this.appendModel(model, index);
+          this.addModel(model, index);
         },
         remove: function (model) {
           this.removeModel(model);
@@ -370,41 +370,37 @@
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
         this.collection.forEach(function (model, i) {
-          this.appendModel(model, i);
+          this.addModel(model, i);
         }, this);
       }
       ++this._renderCount;
       this.trigger("render");
       return this;
     },
-    appendModel: function (model, index) {
+    addModel: function (model, index) {
       var view;
       view = new this.modelView({
         model: model
       });
       this.addChild(view);
-      var previousModel = index > 0 ? this.collection.at(index - 1) : false;
+      var previousModel = index > 0 ? this.collection.at(index - 1) : false,
+        insertionPoint;
       if (!previousModel) {
-        view.appendTo(_.bind(function () {
-          this.el.parentNode.insertBefore(view.el, this.el.firstChild);
-        }, this));
+        insertionPoint = this.el.firstChild;
       } else {
-        //use last() as appendModel can accept multiple nodes from a template
         var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
-        var last = this.$el.children().last(selector);
-
-        //var refNode = document.getElementById("xyz"); 
-        //refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
-
-        last.after(view.el);
+        insertionPoint = this.$(selector)[0].nextSibling;
       }
+      view.appendTo(_.bind(function () {
+        this.el.insertBefore(view.el, insertionPoint);
+      }, this));
       applyModelVisiblityFilter.call(this, model);
-      this.trigger("appendModel", model, view);
+      this.trigger("addModel", model, view);
       return this;
     },
     removeModel: function (model) {
       var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
-        el = this.el.querySelector(selector),
+        el = this.$(selector)[0],
         viewCid = el.getAttribute(viewCidAttributeName),
         view = this.children[viewCid];
       view.remove();
@@ -515,7 +511,7 @@
   });
 
   function appendChildViews() {
-    var placeholders = this.el.querySelectorAll("[" + viewPlaceholderAttributeName + "]");
+    var placeholders = this.$("[" + viewPlaceholderAttributeName + "]");
     _.each(placeholders, function (el) {
       var placeholderId = el.getAttribute(viewPlaceholderAttributeName),
           view = this.children[placeholderId];
@@ -567,15 +563,13 @@
     if (document.readyState === "complete") {
       elementAddEventListener.call(document.body, "click", function (event) {
         // Don't push if meta or shift key are clicked
-        if (!event.metaKey && event.shiftKey) {
-          if (event.target.getAttribute(linkAttributeName)) {
-            var href = event.target.getAttribute("href");
-            // Route anything that starts with # or / (excluding //domain urls)
-            if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
-              Backbone.history.navigate(href, {
-                trigger: true
-              });
-            }
+        if (!event.metaKey && event.shiftKey && event.target.getAttribute(linkAttributeName)) {
+          var href = event.target.getAttribute("href");
+          // Route anything that starts with # or / (excluding //domain urls)
+          if (href && (href[0] === "#" || (href[0] === "/" && href[1] !== "/"))) {
+            Backbone.history.navigate(href, {
+              trigger: true
+            });
           }
         }
         if (event.preventDefault) {

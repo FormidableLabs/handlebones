@@ -289,6 +289,70 @@ describe("ModelView", function () {
   });
 });
 
+describe("CollectionView", function () {
+
+  function generateCollection () {
+    return new Backbone.Collection([
+      {letter: "a"},
+      {letter: "b"},
+      {letter: "c"}
+    ]);
+  }
+  
+  function generateCollectionView(collection, props) {
+    return new (Handlebones.CollectionView.extend(_.extend((props || {}), {
+      tagName: "ul",
+      modelView: Handlebones.ModelView.extend({
+        tagName: "li",
+        template: Handlebars.compile("{{letter}}")
+      })
+    })))({
+      collection: collection
+    });
+  }
+
+  it("should render a collection", function () {
+    var collection = generateCollection();
+    var view = generateCollectionView(collection);
+    var renderEventSpy = sinon.spy();
+    view.listenTo(view, "render", renderEventSpy);
+    view.render();
+    expect(renderEventSpy.callCount).to.equal(1);
+    expect(view.$("li").length).to.equal(3);
+    expect(view.$("li")[0].innerHTML).to.equal("a");
+    expect(view.$("li")[1].innerHTML).to.equal("b");
+    expect(view.$("li")[2].innerHTML).to.equal("c");
+  });
+
+  it("should respond to collection add and remove", function () {
+
+  });
+
+  it("should respond to collection reset and sort", function () {
+
+  });
+
+  it("should respond to model change", function () {
+    
+  });
+
+  it("should allow manual addModel and removeModel", function () {
+    // try normal position then arbitrary position
+  });
+
+  it("should allow an itemFilter", function () {
+    // and update filter
+  });
+
+  it("should not render an emptyView when none is set", function () {
+
+  });
+
+  it("should transition between empty and not empty", function () {
+
+  });
+});
+
 describe("url helper", function() {
   it("should do a basic join and param substitution", function() {
     var href = Handlebars.helpers.url.call({}, "/a/{{b}}");
@@ -344,8 +408,8 @@ describe("link helper", function () {
       }
     }));
     view.render();
-    expect(view.el.querySelector("a").className).to.equal("test");
-    expect(view.el.querySelector("a").getAttribute("href")).to.equal("#a/b/c");
+    expect(view.$("a")[0].className).to.equal("test");
+    expect(view.$("a")[0].getAttribute("href")).to.equal("#a/b/c");
   });
 
   it("should allow empty string as link", function() {
@@ -354,7 +418,7 @@ describe("link helper", function () {
       template: Handlebars.compile("{{#link \"\"}}text{{/link}}")
     }));
     view.render();
-    expect(view.el.querySelector("a").innerHTML).to.equal("text");
+    expect(view.$("a")[0].innerHTML).to.equal("text");
   });
 });
 
@@ -362,7 +426,7 @@ describe("view helper", function () {
   it("should fail silently when no view initialized", function () {
     var parent = generateParent();
     parent.render();
-    expect(parent.el.querySelector("ul").innerHTML).to.equal("");
+    expect(parent.$("ul")[0].innerHTML).to.equal("");
   });
 
   it("should embed a child view", function () {
@@ -370,7 +434,7 @@ describe("view helper", function () {
     parent.child = generateChild();
     parent.addChild(parent.child);
     parent.render();
-    expect(parent.el.querySelector("ul > li").innerHTML).to.equal("test");
+    expect(parent.$("ul > li")[0].innerHTML).to.equal("test");
   });
 
   it("re-render of parent should not render child", function () {
@@ -433,15 +497,15 @@ describe("view helper", function () {
     var childRenderSpy = sinon.spy();
     parent.child.listenTo(parent.child, "render", childRenderSpy);
     parent.render();
-    expect(parent.el.querySelector("li").innerHTML).to.equal("test");
+    expect(parent.$("li")[0].innerHTML).to.equal("test");
     expect(childRenderSpy.callCount).to.equal(1);
     parent.condition = false;
     parent.render();
     expect(childRenderSpy.callCount).to.equal(1);
-    expect(parent.el.querySelector("li")).to.be.null;
+    expect(parent.$("li")[0]).to.be["undefined"];
     parent.condition = true;
     parent.render();
     expect(childRenderSpy.callCount).to.equal(1);
-    expect(parent.el.querySelector("li").innerHTML).to.equal("test");
+    expect(parent.$("li")[0].innerHTML).to.equal("test");
   });
 });

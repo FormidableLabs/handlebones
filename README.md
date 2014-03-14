@@ -49,7 +49,7 @@ TODO: add expand-tokens support
 ## appendModel & event
 ## removeModel & event
 ## modelFilter
-## updateFilter
+## updateModelFilter
 
 # Util
 

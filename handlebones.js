@@ -342,14 +342,11 @@
   }
 
   function useDocumentFragment(callback) {
-    var el = this.el,
-      $el = this.$el;
+    var el = this.el;
     this.el = document.createDocumentFragment();
-    this.$el = Backbone.$(this.el);
     callback.call(this);
     el.appendChild(this.el);
     this.el = el;
-    this.$el = $el;
   }
 
   Handlebones.CollectionView = Handlebones.View.extend({
@@ -382,35 +379,38 @@
         handleChangeFromNotEmptyToEmpty.call(this);
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
-        //useDocumentFragment.call(this, function() {
-        this.collection.forEach(function (model, i) {
-          this.addModel(model, i);
-        }, this);
-        //});
+        useDocumentFragment.call(this, function() {
+          this.collection.forEach(function (model) {
+            this.addModel(model);
+          }, this);
+        });
       }
       ++this._renderCount;
       this.trigger("render");
       return this;
     },
     addModel: function (model, index) {
-      var view;
+      var view,
+        insertionPoint;
       view = new this.modelView({
         model: model
       });
       this.addChild(view);
-      index = index || this.collection.indexOf(model) || 0;
-
-      var previousModel = index > 0 ? this.collection.at(index - 1) : false,
-        insertionPoint;
-      if (!previousModel) {
-        insertionPoint = this.el.firstChild;
+      if (_.isUndefined(index)) {
+        view.appendTo(this.el);
       } else {
-        var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
-        insertionPoint = this.$(selector)[0].nextSibling;
+        var previousModel = index > 0 ? this.collection.at(index - 1) : false,
+          insertionPoint;
+        if (!previousModel) {
+          insertionPoint = this.el.firstChild;
+        } else {
+          var selector = "[" + modelCidAttributeName + "=\"" + previousModel.cid + "\"]";
+          insertionPoint = this.$(selector)[0].nextSibling;
+        }
+        view.appendTo(_.bind(function () {
+          this.el.insertBefore(view.el, insertionPoint);
+        }, this));
       }
-      view.appendTo(_.bind(function () {
-        this.el.insertBefore(view.el, insertionPoint);
-      }, this));
       applyModelVisiblityFilter.call(this, model);
       this.trigger("addModel", model, view);
       return this;

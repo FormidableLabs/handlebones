@@ -383,7 +383,6 @@ describe("CollectionView", function () {
     });
     view.addModel(d);
     expect(view.$("li").length).to.equal(4);
-    console.log(view.el.innerHTML);
     expect(view.$("li")[3].innerHTML).to.equal("d");
     view.removeModel(d);
     expect(view.$("li").length).to.equal(3);

@@ -182,11 +182,7 @@
       if (_.isFunction(el)) {
         el();
       } else {
-        if (hasDOMLib) {
-          this.$el.appendTo(el);
-        } else {
-          el.appendChild(this.el);
-        }
+        el.appendChild(this.el);
       }
       this.trigger("ready", {
         target: this

@@ -315,21 +315,23 @@
 
   function applyVisibilityFilter() {
     if (this.modelFilter) {
-      this.collection.forEach(applyModelVisiblityFilter, this);
+      this.collection.forEach(function (model) {
+        applyModelVisiblityFilter.call(this, model);
+      }, this);
     }
   }
   
-  function applyModelVisiblityFilter(model) {
+  function applyModelVisiblityFilter(model, el) {
     if (this.modelFilter) {
-      var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]",
-        els = this.$(selector);
-      _.each(els, function (el) {
-        if (modelShouldBeVisible.call(this, model)) {
-          el.style.display = "block";
-        } else {
-          el.style.display = "none";
-        }
-      });
+      if (!el) {
+        var selector = "[" + modelCidAttributeName + "=\"" + model.cid + "\"]";
+        el = this.$(selector)[0];
+      }
+      if (modelShouldBeVisible.call(this, model)) {
+        el.style.display = null;
+      } else {
+        el.style.display = "none";
+      }
     }
   }
   
@@ -347,7 +349,7 @@
 
   Handlebones.CollectionView = Handlebones.View.extend({
     modelView: Handlebones.ModelView,
-    emptyView: Handlebones.View,
+    emptyView: false,
     emptyClassName: "empty",
     modelFilter: false,
     initialize: function () {
@@ -407,7 +409,7 @@
           this.el.insertBefore(view.el, insertionPoint);
         }, this));
       }
-      applyModelVisiblityFilter.call(this, model);
+      applyModelVisiblityFilter.call(this, model, view.el);
       this.trigger("addModel", model, view);
       return this;
     },
@@ -421,7 +423,7 @@
       this.trigger("removeModel", model, view);
       return this;
     },
-    updateFilter: function () {
+    updateModelFilter: function () {
       applyVisibilityFilter.call(this);
     }
   });

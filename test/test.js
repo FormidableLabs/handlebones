@@ -399,16 +399,56 @@ describe("CollectionView", function () {
     expect(view.$("li")[0].innerHTML).to.equal("a");
   });
 
-  it("should allow an itemFilter", function () {
-    // and update filter
+  it("should allow an modelFilter", function () {
+    var collection = generateCollection();
+    var view = generateCollectionView(collection, {
+      modelFilter: function (model) {
+        return model.get("letter") === "b";
+      }
+    });
+    view.render();
+    expect(view.$("li")[0].style.display).to.equal("none");
+    expect(view.$("li")[1].style.display).to.equal.null;
+    expect(view.$("li")[2].style.display).to.equal("none");
+    view.modelFilter = function (model) {
+      return model.get("letter") === "c";
+    };
+    view.updateModelFilter();
+    expect(view.$("li")[0].style.display).to.equal("none");
+    expect(view.$("li")[1].style.display).to.equal("none");
+    expect(view.$("li")[2].style.display).to.equal.null;
   });
 
   it("should not render an emptyView when none is set", function () {
-
+    var collection = new Backbone.Collection();
+    var view = generateCollectionView(collection);
+    view.render();
+    expect(view.el.innerHTML).to.equal("");
   });
 
-  it("should transition between empty and not empty", function () {
-    // check empty class too
+  it("should render an emptyView when one is set and transition between empty and non empty", function () {
+    var collection = new Backbone.Collection();
+    var view = generateCollectionView(collection, {
+      emptyView: Handlebones.View.extend({
+        tagName: "li",
+        template: Handlebars.compile("empty")
+      })
+    });
+    view.render();
+    expect(view.$("li").length).to.equal(1);
+    expect(view.$("li")[0].innerHTML).to.equal("empty");
+    expect(view.el.className).to.equal("empty");
+    var a = new Backbone.Model({
+      letter: "a"
+    });
+    collection.add(a);
+    expect(view.$("li").length).to.equal(1);
+    expect(view.$("li")[0].innerHTML).to.equal("a");
+    expect(view.el.className).to.equal("");
+    collection.remove(a);
+    expect(view.$("li").length).to.equal(1);
+    expect(view.$("li")[0].innerHTML).to.equal("empty");
+    expect(view.el.className).to.equal("empty");
   });
 });
 

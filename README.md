@@ -1,6 +1,3 @@
-TODO: add expand-tokens support
-
-
 # View
 
 ## Attributes
@@ -68,7 +65,14 @@ TODO: add expand-tokens support
 
 ## Testing
 
-   npm install -g mocha-phantomjs phantomjs
+    npm install -g mocha-phantomjs phantomjs
+    gulp
+
+To run tests in browser
+  
+    gulp connect
+    open http://localhost:8080/native.html
+
 
 ### Test modes
 

@@ -63,7 +63,6 @@ TODO: add expand-tokens support
 ## link
 ## view
 - must use addChild!
-- use {{#view}} + render (will assign a new template to that instance) 
 
 ## $.view
 

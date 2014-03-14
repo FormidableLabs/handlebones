@@ -233,11 +233,6 @@
     _ensureElement: function () {
       configureView.call(this);
       return Backbone.View.prototype._ensureElement.call(this);
-    },
-    _onViewHelper: function (options) {
-      if (options.fn && options.fn !== Handlebars.VM.noop) {
-        this.template = options.fn;
-      }
     }
   });
 
@@ -280,9 +275,7 @@
     },
     getView: function () {
       return this._view;
-    },
-    // noop, as LayoutView cannot accept a template
-    _onViewHelper: false
+    }
   });
 
   // CollectionView
@@ -430,14 +423,6 @@
     },
     updateFilter: function () {
       applyVisibilityFilter.call(this);
-    },
-    _onViewHelper: function (options) {
-      if (options.fn && options.fn !== Handlebars.VM.noop) {
-        this._itemViewTemplate = options.fn;
-      }
-      if (options.inverse && options.inverse !== Handlebars.VM.noop) {
-        this._emptyViewTemplate = options.inverse;
-      }
     }
   });
 
@@ -527,9 +512,6 @@
   Handlebars.registerHelper("view", function (view, options) {
     if (!view) {
       return "";
-    }
-    if (view._onViewHelper) {
-      view._onViewHelper(options);
     }
     var htmlAttributes = {
       // ensure generated placeholder tag in template

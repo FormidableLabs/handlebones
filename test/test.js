@@ -391,15 +391,4 @@ describe("view helper", function () {
     expect(childRenderSpy.callCount).to.equal(1);
     expect(parent.el.querySelector("li").innerHTML).to.equal("test");
   });
-
-  it("should allow a template block to be passed", function () {
-    var parent = new (Handlebones.View.extend({
-      template: Handlebars.compile("<ul>{{#view child}}override{{/view}}</ul>")
-    }));
-    var child = generateChild();
-    parent.child = parent.addChild(child);
-    parent.render();
-    expect(parent.el.querySelector("li").innerHTML).to.equal("override");
-    expect(child.template()).to.equal("override");
-  });
 });

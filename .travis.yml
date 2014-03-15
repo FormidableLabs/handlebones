@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - 0.10
+
+before_script:
+  - "./node_modules/bower/bin/bower install"
+  - "export DISPLAY=:99.0" 
+  - "sh -e /etc/init.d/xvfb start"
+  - gulp connect &
+  - sleep 5

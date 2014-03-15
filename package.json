@@ -9,5 +9,8 @@
     "gulp-rename": "~1.2.0",
     "gulp-clean": "~0.2.4",
     "gulp-connect": "~1.0.7"
+  },
+  "scripts": {
+    "test": "gulp"
   }
 }

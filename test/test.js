@@ -537,3 +537,9 @@ describe("view helper", function () {
     expect(parent.$("li")[0].innerHTML).to.equal("test");
   });
 });
+
+describe("tag utility", function () {
+  it("should render a tag with no content", function () {
+    
+  });
+});

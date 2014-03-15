@@ -71,7 +71,6 @@
 
   var viewNameAttributeName = "data-view-name",
     viewCidAttributeName = "data-view-cid",
-    linkAttributeName = "data-history-link",
     viewPlaceholderAttributeName = "data-view-tmp",
     modelCidAttributeName = "data-model-cid",
     viewsIndexedByCid = {},
@@ -81,11 +80,6 @@
 
 
   // DOM 
-  var ElementProto = typeof Element !== "undefined" && Element.prototype;
-
-  var elementAddEventListener = ElementProto.addEventListener || function (eventName, listener) {
-    return this.attachEvent(eventName, listener);
-  };
 
   function hasClassName(name) {
     return new RegExp("(?:^|\\s+)" + name + "(?:\\s+|$)").test(this.className);
@@ -289,7 +283,7 @@
       var response = Handlebones.View.prototype.setElement.apply(this, arguments);
       this.el.setAttribute(modelCidAttributeName, this.model.cid);
       return response;
-    },
+    }
   });
 
   // CollectionView
@@ -377,7 +371,7 @@
         handleChangeFromNotEmptyToEmpty.call(this);
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
-        useDocumentFragment.call(this, function() {
+        useDocumentFragment.call(this, function () {
           this.collection.forEach(function (model) {
             this.addModel(model);
           }, this);
@@ -388,8 +382,7 @@
       return this;
     },
     addModel: function (model, index) {
-      var view,
-        insertionPoint;
+      var view;
       view = new this.modelView({
         model: model
       });
@@ -450,8 +443,8 @@
 
   Handlebones.Util = {
     tag: function (attributes, content, scope) {
-      var htmlAttributes = _.omit(attributes, "tagName"),
-          tag = attributes.tagName || "div";
+      var htmlAttributes = _.omit(attributes, "tagName", "tag"),
+          tag = attributes.tag || attributes.tagName || "div";
       return "<" + tag + " " + _.map(htmlAttributes, function (value, key) {
         var formattedValue = value;
         if (scope) {
@@ -494,24 +487,7 @@
     }
   };
 
-  // In helpers "tagName" or "tag" may be specified, as well
-  // as "class" or "className". Normalize to "tagName" and
-  // "className" to match the property names used by Backbone
-  // jQuery, etc. Special case for "className" in
-  // Handlebones.Util.tag: will be rewritten as "class" in
-  // generated HTML.
-  function normalizeHTMLAttributeOptions(options) {
-    if (options.tag) {
-      options.tagName = options.tag;
-      delete options.tag;
-    }
-    if (options["class"]) {
-      options.className = options["class"];
-      delete options["class"];
-    }
-  }
-
-  Handlebars.registerHelper("view", function (view, options) {
+  Handlebars.registerHelper("view", function (view) {
     if (!view) {
       return "";
     }

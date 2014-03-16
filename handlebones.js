@@ -111,7 +111,6 @@
     if (!this._isReady) {
       this._isReady = true;
       _.each(this.children, triggerReadyOnChild);
-      this.listenTo(this, "addChild", triggerReadyOnChild);
     }
   }
 
@@ -187,13 +186,14 @@
       }
       view.parent = this;
       this.children[view.cid] = view;
-      this.trigger("addChild", view);
+      if (this._isReady) {
+        triggerReadyOnChild(view);
+      }
       return view;
     },
     removeChild: function (view) {
       delete view.parent;
       delete this.children[view.cid];
-      this.trigger("removeChild", view);
       return view;
     },
     remove: function () {

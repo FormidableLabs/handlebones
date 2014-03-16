@@ -221,23 +221,6 @@ define([
       expect(parent.children[child.cid]).to.be["undefined"];
     });
   
-    it("should fire addChild and removeChild events", function () {
-      var parent = new Handlebones.View();
-      var child = new Handlebones.View();
-      var addChildSpy = sinon.spy(function (view) {
-        expect(view).to.equal(child);
-      });
-      var removeChildSpy = sinon.spy(function (view) {
-        expect(view).to.equal(child);
-      });
-      parent.listenTo(parent, "addChild", addChildSpy);
-      parent.listenTo(parent, "removeChild", removeChildSpy);
-      parent.addChild(child);
-      expect(addChildSpy.callCount).to.equal(1);
-      parent.removeChild(child);
-      expect(removeChildSpy.callCount).to.equal(1);
-    });
-  
     it("should fire ready on children", function () {
       var parent = generateParent();
       var child = generateChild();
@@ -267,8 +250,7 @@ define([
     it("should automatically removeChild when remove'd", function () {
       var parent = generateParent();
       var child = generateChild();
-      var spy = sinon.spy();
-      parent.on("removeChild", spy);
+      var spy = parent.removeChild = sinon.spy(parent.removeChild);
       parent.addChild(child);
       parent.remove();
       expect(spy.callCount).to.equal(1);

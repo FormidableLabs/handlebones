@@ -1,6 +1,7 @@
 {
   "name": "handlebones",
   "version": "0.0.1",
+  "repository": "https://github.com/FormidableLabs/handlebones.git",
   "devDependencies": {
     "gulp-mocha": "~0.4.1",
     "gulp": "~3.5.5",

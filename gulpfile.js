@@ -41,28 +41,28 @@ gulp.task("mocha", [
   });
 });
 
-function rjsShim(domLib) {
-  var options = {
-    "underscore": {
-      exports: "_"
-    },
-    "backbone": {
-      deps: [domLib, "underscore"],
-      exports: "Backbone"
-    },
-    "Handlebars": {
-      exports: "Handlebars"
-    }
-  };
-  options[domLib] = {
+var rjsShim = {
+  "underscore": {
+    exports: "_"
+  },
+  "backbone": {
+    deps: ["jquery", "underscore"],
+    exports: "Backbone"
+  },
+  "Handlebars": {
+    exports: "Handlebars"
+  },
+  "jquery": {
     exports: "$"
-  };
-  return options;
-}
+  },
+  "zepto": {
+    exports: "$"
+  }
+};
 
 var rjsPaths = {
   "jquery": "bower_components/jquery/dist/jquery",
-  "zepto": "bower_components/zepto/zetp",
+  "zepto": "bower_components/zepto/zepto",
   "underscore": "bower_components/underscore/underscore",
   "backbone": "bower_components/backbone/backbone",
   "Handlebars": "bower_components/handlebars/handlebars",
@@ -73,7 +73,7 @@ gulp.task("require:jquery", function () {
     baseUrl: "./",
     name: "handlebones",
     out: "handlebones-jquery-bundle.js",
-    shim: rjsShim("jquery"),
+    shim: rjsShim,
     paths: rjsPaths,
     map: {
       "*": {
@@ -90,10 +90,11 @@ gulp.task("require:zepto", function () {
     baseUrl: "./",
     name: "handlebones",
     out: "handlebones-zepto-bundle.js",
-    shim: rjsShim("zepto"),
+    shim: rjsShim,
     paths: rjsPaths,
     map: {
       "*": {
+        "jquery": "zepto",
         // Handlebars is used variously by different vendors. Do both here.
         "handlebars": "Handlebars"
       }

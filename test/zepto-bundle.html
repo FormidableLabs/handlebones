@@ -6,26 +6,61 @@
   <body>
     <div id="mocha"></div>
     <div id="fixture"></div>
-    <script src="zepto/zepto.js"></script>
-    <script src="underscore/underscore.js"></script>
-    <script src="backbone/backbone.js"></script>
-    <script src="handlebars/handlebars.js"></script>
-    <script src="handlebones.js"></script>
+    <script src="requirejs/require.js"></script>
     <script src="sinonjs/sinon.js"></script>
     <script src="mocha/mocha.js"></script>
-    <script src="chai/chai.js"></script>
     <script>
-      mocha.ui('bdd');
-      mocha.reporter('html');
-      expect = chai.expect;
-    </script>
-    <script src="test.js"></script>
-    <script>
-      if (window.mochaPhantomJS) {
-        mochaPhantomJS.run();
-      } else {
-        mocha.run();
-      }
+      // Set up Mocha.
+      mocha.setup("bdd");
+      mocha.reporter("html");
+
+      // AMD setup.
+      require.config({
+        paths: {
+          "jquery": "jquery/dist/jquery",
+          "zepto": "zepto/zepto",
+          "underscore": "underscore/underscore",
+          "backbone": "backbone/backbone",
+          "Handlebars": "handlebars/handlebars",
+        },
+        map: {
+          "*": {
+            // so we don't have to dynamically detect in the test file, just alias
+            "jquery": "zepto",
+            // Handlebars is used variously by different vendors. Do both here.
+            "handlebars": "Handlebars"
+          }
+        },
+        shim: {
+          "jquery": {
+            exports: "$"
+          },
+          "zepto": {
+            exports: "$"
+          },
+          "underscore": {
+            exports: "_"
+          },
+          "backbone": {
+            deps: ["zepto", "underscore"],
+            exports: "Backbone"
+          },
+          "Handlebars": {
+            exports: "Handlebars"
+          }
+        }
+      });
+      
+      require(["chai/chai", "handlebones-zepto-bundle"], function (chai) {
+        // Set up AMD Chai (just make global for test cases).
+        window.chai = chai;
+        window.expect = chai.expect;
+        
+        // Add in specs.
+        require(["test.js"], function () {
+          (window.mochaPhantomJS || mocha).run();
+        });
+      });
     </script>
   </body>
 </html>

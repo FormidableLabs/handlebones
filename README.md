@@ -9,7 +9,7 @@ A tiny [Backbone](http://backbonejs.org) + [Handlebars](http://handlebarsjs.com/
 For new projects give the [Handlebones Generator](http://github.com/FormidableLabs/generator-handlebones) a try. Edge production and development downloads:
 
 - [Development Version 16kb](https://raw.github.com/FormidableLabs/handlebones/master/handlebones.js)
-- [Production Version 6kb](https://raw.github.com/FormidableLabs/handlebones/master/handlebones.js)
+- [Production Version 6kb](https://raw.github.com/FormidableLabs/handlebones/master/handlebones.min.js)
 
 Handlebones is designed to be used without RequireJS or with RequireJS without using a shim. Handlebones requires Underscore, Backbone and Handlebars plus jQuery or Zepto. The upcoming version of Backbone will remove DOM libs as a hard dependency, Handlebones was designed with this in mind.
 

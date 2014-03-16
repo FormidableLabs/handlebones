@@ -443,15 +443,20 @@
 
   Handlebones.Util = {
     tag: function (attributes, content, scope) {
+      if (attributes.className) {
+        attributes["class"] = attributes.className;
+        delete attributes.className;
+      }
       var htmlAttributes = _.omit(attributes, "tagName", "tag"),
-          tag = attributes.tag || attributes.tagName || "div";
-      return "<" + tag + " " + _.map(htmlAttributes, function (value, key) {
+          tag = attributes.tag || attributes.tagName || "div",
+          space = _.keys(htmlAttributes).length > 0 ? " " : "";
+      return "<" + tag + space + _.map(htmlAttributes, function (value, key) {
         var formattedValue = value;
         if (scope) {
           formattedValue = Handlebones.Util.expandToken(value, scope);
         }
         formattedValue = Handlebars.Utils.escapeExpression(formattedValue);
-        return (key === "className" ? "class" : key) + "=\"" + formattedValue + "\"";
+        return key + "=\"" + formattedValue + "\"";
       }).join(" ") + ">" + (_.isUndefined(content) ? "" : content) + "</" + tag + ">";
     },
     expandToken: function (input, scope, encode) {

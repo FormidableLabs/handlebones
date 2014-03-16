@@ -540,6 +540,39 @@ describe("view helper", function () {
 
 describe("tag utility", function () {
   it("should render a tag with no content", function () {
-    
+    expect(Handlebones.Util.tag({
+      tag: "a"
+    })).to.equal("<a></a>");
+  });
+
+  it("should render a tag with content", function () {
+    expect(Handlebones.Util.tag({
+      tag: "a"
+    }, "test")).to.equal("<a>test</a>");
+  });
+
+  it("should render a tag with content and an attribute", function () {
+    var html = Handlebones.Util.tag({
+      tag: "a",
+      key: "value"
+    }, "test");
+    expect(html).to.equal("<a key=\"value\">test</a>");
+  });
+
+  it("should render tokens in attributes", function () {
+    expect(Handlebones.Util.tag({
+      tag: "a",
+      attr: "{{key}}"
+    }, "test", {
+      key: "value"
+    })).to.equal("<a attr=\"value\">test</a>");
+  });
+
+  it("should normalize tagName and className", function () {
+    var html = Handlebones.Util.tag({
+      tagName: "a",
+      "className": "test"
+    });
+    expect(html).to.equal("<a class=\"test\"></a>");
   });
 });

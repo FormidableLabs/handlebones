@@ -47,7 +47,7 @@ function rjsShim(domLib) {
       exports: "_"
     },
     "backbone": {
-      deps: [domLib, "lodash"],
+      deps: [domLib, "underscore"],
       exports: "Backbone"
     },
     "Handlebars": {
@@ -60,11 +60,21 @@ function rjsShim(domLib) {
   return options;
 }
 
-gulp.task("require:jquery", ["dist"], function () {
+var rjsPaths = {
+  "jquery": "bower_components/jquery/dist/jquery",
+  "zepto": "bower_components/zepto/zetp",
+  "underscore": "bower_components/underscore/underscore",
+  "backbone": "bower_components/backbone/backbone",
+  "Handlebars": "bower_components/handlebars/handlebars",
+};
+
+gulp.task("require:jquery", function () {
   return rjs({
-    baseUrl: "handlebones.js",
+    baseUrl: "./",
+    name: "handlebones",
     out: "handlebones-jquery-bundle.js",
-    shim: rjsShim("jquery",
+    shim: rjsShim("jquery"),
+    paths: rjsPaths,
     map: {
       "*": {
         // Handlebars is used variously by different vendors. Do both here.
@@ -72,14 +82,16 @@ gulp.task("require:jquery", ["dist"], function () {
       }
     }
     // ... more require.js options
-  }).pipe(gulp.dest(".")); // pipe it to the output DIR
+  }).pipe(gulp.dest("./")); // pipe it to the output DIR
 });
 
-gulp.task("require:zepto", ["dist"], function () {
+gulp.task("require:zepto", function () {
   return rjs({
-    baseUrl: "handlebones.js",
+    baseUrl: "./",
+    name: "handlebones",
     out: "handlebones-zepto-bundle.js",
-    shim: rjsShim("zepto",
+    shim: rjsShim("zepto"),
+    paths: rjsPaths,
     map: {
       "*": {
         // Handlebars is used variously by different vendors. Do both here.
@@ -87,7 +99,7 @@ gulp.task("require:zepto", ["dist"], function () {
       }
     }
     // ... more require.js options
-  }).pipe(gulp.dest(".")); // pipe it to the output DIR
+  }).pipe(gulp.dest("./")); // pipe it to the output DIR
 });
 
 gulp.task("connect", connect.server({

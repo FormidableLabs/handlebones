@@ -4,23 +4,90 @@ var gulp = require("gulp"),
   uglify = require("gulp-uglify"),
   rename = require("gulp-rename"),
   clean = require("gulp-clean"),
-  connect = require("gulp-connect");
+  connect = require("gulp-connect"),
+  rjs = require("gulp-requirejs"),
+  async = require("async"),
+  exec = require("child_process").exec;
 
-gulp.task("mocha", ["connect", "dist"], function () {
-  var exec = require("child_process").exec,
-    cmd = "mocha-phantomjs http://localhost:8080/native.html",
-    child = exec(cmd, function (error, stdout, stderr) {
-      if (error) {
-        throw error;
+gulp.task("mocha", [
+  "connect",
+  "dist",
+  "require:jquery",
+  "require:zepto"
+], function () {
+  async.series([
+    "jquery.html",
+    "zepto.html",
+    "jquery-bundle.html",
+    "zepto-bundle.html"
+  ].map(function (page) {
+    return function (next) {
+      var cmd = "mocha-phantomjs http://localhost:8080/" + page,
+        child = exec(cmd, function (error, stdout, stderr) {
+          if (error) {
+            throw error;
+          }
+          if (stdout) {
+            process.stdout.write(stdout);
+          }
+          if (stderr) {
+            process.stderr.write(stderr);
+          }
+          next();
+        });
+    };
+  }), function () {
+    process.exit();
+  });
+});
+
+function rjsShim(domLib) {
+  var options = {
+    "underscore": {
+      exports: "_"
+    },
+    "backbone": {
+      deps: [domLib, "lodash"],
+      exports: "Backbone"
+    },
+    "Handlebars": {
+      exports: "Handlebars"
+    }
+  };
+  options[domLib] = {
+    exports: "$"
+  };
+  return options;
+}
+
+gulp.task("require:jquery", ["dist"], function () {
+  return rjs({
+    baseUrl: "handlebones.js",
+    out: "handlebones-jquery-bundle.js",
+    shim: rjsShim("jquery",
+    map: {
+      "*": {
+        // Handlebars is used variously by different vendors. Do both here.
+        "handlebars": "Handlebars"
       }
-      if (stdout) {
-        process.stdout.write(stdout);
+    }
+    // ... more require.js options
+  }).pipe(gulp.dest(".")); // pipe it to the output DIR
+});
+
+gulp.task("require:zepto", ["dist"], function () {
+  return rjs({
+    baseUrl: "handlebones.js",
+    out: "handlebones-zepto-bundle.js",
+    shim: rjsShim("zepto",
+    map: {
+      "*": {
+        // Handlebars is used variously by different vendors. Do both here.
+        "handlebars": "Handlebars"
       }
-      if (stderr) {
-        process.stderr.write(stderr);
-      }
-      process.exit();
-    });
+    }
+    // ... more require.js options
+  }).pipe(gulp.dest(".")); // pipe it to the output DIR
 });
 
 gulp.task("connect", connect.server({

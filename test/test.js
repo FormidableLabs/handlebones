@@ -173,9 +173,7 @@ define([
   
     it("should fire ready event when appended", function () {
       var view;
-      var spy = sinon.spy(function (options) {
-        // should pass target param
-        expect(options.target).to.equal(view);
+      var spy = sinon.spy(function () {
       });
       view = new (Handlebones.View.extend({
         id: "test-view",
@@ -264,6 +262,16 @@ define([
       parent.addChild(child);
       expect(parentSpy.callCount).to.equal(1);
       expect(childSpy.callCount).to.equal(1);
+    });
+
+    it("should automatically removeChild when remove'd", function () {
+      var parent = generateParent();
+      var child = generateChild();
+      var spy = sinon.spy();
+      parent.on("removeChild", spy);
+      parent.addChild(child);
+      parent.remove();
+      expect(spy.callCount).to.equal(1);
     });
   });
   

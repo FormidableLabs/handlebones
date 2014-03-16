@@ -178,9 +178,7 @@
       } else {
         el.appendChild(this.el);
       }
-      this.trigger("ready", {
-        target: this
-      });
+      this.trigger("ready");
       return this;
     },
     addChild: function (view) {
@@ -199,6 +197,9 @@
       return view;
     },
     remove: function () {
+      _.each(this.children, function (view) {
+        this.removeChild(view);
+      }, this);
       delete viewsIndexedByCid[this.cid];
       if (this.name) {
         this.el.removeAttribute(viewNameAttributeName);

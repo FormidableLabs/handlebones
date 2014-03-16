@@ -1,0 +1,46 @@
+{
+  "name": "FormidableLabs/handlebones",
+  "description": "A tiny Backbone + Handlebars view framework",
+  "homepage": "http://handlebonesjs.org/",
+  "type": "component",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Formidable Labs",
+      "homepage": "http://formidablelabs.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/FormidableLabs/handlebones/issues",
+    "source": "https://github.com/FormidableLabs/handlebones"
+  },
+  "require": {
+    "components/handlebars.js" : "*",
+    "components/underscore": "*",
+    "components/backbone": "*"
+  },
+  "suggest": {
+    "components/jquery": "Requires either jQuery or Zepto",
+    "components/zepto": "Requires either jQuery or Zepto"
+  },
+  "require": {
+    "components/jquery" : "*",
+    "components/zepto": "*"
+  },
+  "extra": {
+    "component": {
+      "scripts": [
+        "handlebones.js",
+      ],
+      "shim": {
+        "exports": "Handlebones",
+        "deps": [
+          "handlebars",
+          "underscore",
+          "backbone"
+        ]
+      }
+    }
+  }
+}
+  

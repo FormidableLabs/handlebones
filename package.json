@@ -1,6 +1,8 @@
 {
   "name": "handlebones",
+  "description": "A tiny Backbone + Handlebars view framework",
   "version": "0.0.1",
+  "homepage": "http://handlebonesjs.org",
   "repository": "https://github.com/FormidableLabs/handlebones.git",
   "devDependencies": {
     "gulp-mocha": "~0.4.1",

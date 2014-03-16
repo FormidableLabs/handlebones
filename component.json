@@ -1,0 +1,9 @@
+{
+  "name": "handlebones",
+  "version": "0.0.1",
+  "repo": "FormidableLabs/handlebones",
+  "main": "handlebones.js",
+  "scripts": [
+    "handlebones.js"
+  ]
+}

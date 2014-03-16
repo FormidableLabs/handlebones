@@ -1,7 +1,11 @@
 {
   "name": "handlebones",
+  "description": "A tiny Backbone + Handlebars view framework",
   "version": "0.0.1",
   "main": "handlebones.js",
+  "homepage": "http://handlebonesjs.org",
+  "repository": "https://github.com/FormidableLabs/handlebones.git",
+  "license": "MIT",
   "dependencies": {
     "underscore": "1.6.0",
     "backbone": "1.1.2",
@@ -16,6 +20,13 @@
     "requirejs": "2.1.11"
   },
   "ignore": [
+    ".gitignore",
+    ".jshintrc",
+    ".travis.yml",
+    "component.json",
+    "composer.json",
+    "gulpfile.js",
+    "package.json",
     "node_modules",
     "bower_components"
   ]

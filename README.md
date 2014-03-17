@@ -13,8 +13,8 @@ For new projects give the [Handlebones Generator](http://github.com/FormidableLa
 
 Handlebones is designed to be used without RequireJS or with RequireJS without using a shim. Handlebones requires Underscore, Backbone and Handlebars plus jQuery or Zepto. The upcoming version of Backbone will remove DOM libs as a hard dependency, Handlebones was designed with this in mind.
 
-- [Hello World](#)
-- [Todos](#)
+- [Hello World](http://jsfiddle.net/LQYQV/)
+- [Todos](http://jsfiddle.net/7TLgS/)
 - [LayoutView](#)
 - [$.view](#)
 

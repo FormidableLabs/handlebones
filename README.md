@@ -232,7 +232,7 @@ Generate arbitrary HTML. `tag` or `tagName` may be specified to define what type
       id: "42"
     });
 
-## $.view(event.target)
+## $.view(element)
 
 Obtains a reference to the nearest `view` from a given element. Especially useful inside of a `CollectionView`
 

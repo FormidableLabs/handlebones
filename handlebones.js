@@ -78,7 +78,6 @@
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
     hasDOMLib = typeof $ !== "undefined" && $.fn;
 
-
   // DOM 
 
   function hasClassName(name) {
@@ -101,16 +100,16 @@
 
   // View
 
-  function triggerReadyOnChild(child) {
-    if (!child._isReady) {
-      child.trigger("ready");
+  function triggerReady(view) {
+    if (!view._isReady) {
+      view.trigger("ready");
     }
   }
 
   function onReady() {
     if (!this._isReady) {
       this._isReady = true;
-      _.each(this.children, triggerReadyOnChild);
+      _.each(this.children, triggerReady);
     }
   }
 
@@ -177,7 +176,7 @@
       } else {
         el.appendChild(this.el);
       }
-      this.trigger("ready");
+      triggerReady(this);
       return this;
     },
     addChild: function (view) {
@@ -187,7 +186,7 @@
       view.parent = this;
       this.children[view.cid] = view;
       if (this._isReady) {
-        triggerReadyOnChild(view);
+        triggerReady(view);
       }
       return view;
     },

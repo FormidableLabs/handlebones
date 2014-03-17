@@ -184,10 +184,6 @@ define([
       }));
       view.appendTo(document.getElementById("fixture"));
       expect(spy.callCount).to.equal(1);
-  
-      // will fire multiple times
-      view.appendTo(document.getElementById("fixture"));
-      expect(spy.callCount).to.equal(2);
     });
   
     it("should allow a custom appendTo insertion operation", function () {
@@ -286,6 +282,7 @@ define([
     });
 
     it("should fire one ready event and one remove event on views", function () {
+      var layoutView = new Handlebones.LayoutView();
       var a = new Handlebones.View();
       a.name = "a";
       var b = new Handlebones.View();
@@ -294,7 +291,28 @@ define([
       var readySpyB = sinon.spy();
       var removeSpyA = sinon.spy();
       var removeSpyB = sinon.spy();
+      a.listenTo(a, "ready", readySpyA);
+      b.listenTo(b, "ready", readySpyB);
+      a.listenTo(a, "remove", removeSpyA);
+      b.listenTo(b, "remove", removeSpyB);
+      layoutView.setView(a);
+      expect(readySpyA.callCount).to.equal(1, "ready A");
+      layoutView.setView(b);
+      expect(readySpyB.callCount).to.equal(1, "ready B");
+      expect(removeSpyA.callCount).to.equal(1, "remove A");
+    });
+
+    it("should fire one ready event and one remove event on views when appened", function () {
       var layoutView = new Handlebones.LayoutView();
+      layoutView.appendTo(document.getElementById("fixture"));
+      var a = new Handlebones.View();
+      a.name = "a";
+      var b = new Handlebones.View();
+      b.name = "b";
+      var readySpyA = sinon.spy();
+      var readySpyB = sinon.spy();
+      var removeSpyA = sinon.spy();
+      var removeSpyB = sinon.spy();
       a.listenTo(a, "ready", readySpyA);
       b.listenTo(b, "ready", readySpyB);
       a.listenTo(a, "remove", removeSpyA);

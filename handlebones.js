@@ -205,9 +205,8 @@
         this.el.removeAttribute(viewNameAttributeName);
       }
       this.el.removeAttribute(viewCidAttributeName);
-      var response = Backbone.View.prototype.remove.apply(this, arguments);
       this.trigger("remove");
-      return response;
+      return Backbone.View.prototype.remove.apply(this, arguments);
     },
     // Private and undocumented methods
     toString: function () {

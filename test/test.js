@@ -284,6 +284,27 @@ define([
         expect(document.getElementById("test-view").innerHTML).to.equal("test");
       });
     });
+
+    it("should fire one ready event and one remove event on views", function () {
+      var a = new Handlebones.View();
+      a.name = "a";
+      var b = new Handlebones.View();
+      b.name = "b";
+      var readySpyA = sinon.spy();
+      var readySpyB = sinon.spy();
+      var removeSpyA = sinon.spy();
+      var removeSpyB = sinon.spy();
+      var layoutView = new Handlebones.LayoutView();
+      a.listenTo(a, "ready", readySpyA);
+      b.listenTo(b, "ready", readySpyB);
+      a.listenTo(a, "remove", removeSpyA);
+      b.listenTo(b, "remove", removeSpyB);
+      layoutView.setView(a);
+      expect(readySpyA.callCount).to.equal(1, "ready A");
+      layoutView.setView(b);
+      expect(readySpyB.callCount).to.equal(1, "ready B");
+      expect(removeSpyA.callCount).to.equal(1, "remove A");
+    });
   });
   
   describe("ModelView", function () {

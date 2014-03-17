@@ -15,8 +15,8 @@ Handlebones is designed to be used without RequireJS or with RequireJS without u
 
 - [Hello World](http://jsfiddle.net/LQYQV/)
 - [Todos](http://jsfiddle.net/7TLgS/)
-- [LayoutView](http://jsfiddle.net/zNk5s/)
-- [$.view](#)
+- [LayoutView](http://jsfiddle.net/eMLb4/)
+- [$.view](http://jsfiddle.net/ZmN7x/)
 
 ## Handlebones.View
 

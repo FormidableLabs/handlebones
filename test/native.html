@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="mocha/mocha.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <div id="fixture"></div>
+    <script src="underscore/underscore.js"></script>
+    <script src="backbone/backbone.js"></script>
+    <script src="backbone.nativeview/backbone.nativeview.js"></script>
+    <script src="handlebars/handlebars.js"></script>
+    <script src="handlebones.js"></script>
+    <script>
+      console.log(Backbone.$);
+      _.extend(Handlebones.View.prototype, Backbone.NativeViewMixin);
+      _.extend(Handlebones.ModelView.prototype, Backbone.NativeViewMixin);
+      _.extend(Handlebones.CollectionView.prototype, Backbone.NativeViewMixin);
+      _.extend(Handlebones.LayoutView.prototype, Backbone.NativeViewMixin);
+    </script>
+    <script src="sinonjs/sinon.js"></script>
+    <script src="mocha/mocha.js"></script>
+    <script src="chai/chai.js"></script>
+    <script>
+      mocha.ui('bdd');
+      mocha.reporter('html');
+      expect = chai.expect;
+    </script>
+    <script src="test.js"></script>
+    <script>
+      if (window.mochaPhantomJS) {
+        mochaPhantomJS.run();
+      } else {
+        mocha.run();
+      }
+    </script>
+  </body>
+</html>
+
+
+_.extend(MyView.prototype, Backbone.NativeViewMixin);

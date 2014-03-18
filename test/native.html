@@ -12,7 +12,16 @@
     <script src="handlebars/handlebars.js"></script>
     <script src="handlebones.js"></script>
     <script>
-      console.log(Backbone.$);
+      Backbone.NativeViewMixin._setAttributes = function (attrs) {
+        for (var attr in attrs) {
+          attr in this.el ? this.el[attr] = attrs[attr] : this.el.setAttribute(attr, attrs[attr]);
+        }
+      };
+
+      Backbone.NativeViewMixin._setElement = function (el) {
+        return this._setEl(el);
+      };
+
       _.extend(Handlebones.View.prototype, Backbone.NativeViewMixin);
       _.extend(Handlebones.ModelView.prototype, Backbone.NativeViewMixin);
       _.extend(Handlebones.CollectionView.prototype, Backbone.NativeViewMixin);
@@ -36,6 +45,3 @@
     </script>
   </body>
 </html>
-
-
-_.extend(MyView.prototype, Backbone.NativeViewMixin);

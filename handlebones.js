@@ -39,12 +39,11 @@
       "underscore",
       "backbone",
       "handlebars",
-      "jquery",
       "exports"
-    ], function (_, Backbone, Handlebars, $, exports) {
+    ], function (_, Backbone, Handlebars, exports) {
       // Export global even in AMD case in case this script is loaded with
       // others that may still expect a global Backbone.
-      root.Handlebones = factory(root, exports, _, Backbone, Handlebars, $);
+      root.Handlebones = factory(root, exports, _, Backbone, Handlebars);
     });
   // Next for Node.js or CommonJS. jQuery may not be needed as a module.
   /* global exports */
@@ -76,7 +75,7 @@
     viewsIndexedByCid = {},
     isIE11 = !!navigator.userAgent.match(/Trident\/7\./),
     isIE = isIE11 || (/msie [\w.]+/).exec(navigator.userAgent.toLowerCase()),
-    hasDOMLib = typeof $ !== "undefined" && $.fn;
+    hasDOMLib = typeof Backbone.$ !== "undefined" && Backbone.$.fn;
 
   // DOM 
 
@@ -136,7 +135,7 @@
       // or IE as both have the tendancy to mangle the elements we want to reuse
       // on cleanup. This could leak event binds if users are performing custom binds
       // but this generally not recommended.
-      if (this._renderCount && (isIE || ($.fn && $.fn.jquery))) {
+      if (this._renderCount && (isIE || (Backbone.$.fn && Backbone.$.fn.jquery))) {
         while (this.el.hasChildNodes()) {
           this.el.removeChild(this.el.childNodes[0]);
         }
@@ -522,9 +521,9 @@
   }
 
   if (hasDOMLib) {
-    $.fn.view = function () {
+    Backbone.$.fn.view = function () {
       var selector = "[" + viewCidAttributeName + "]",
-        el = $(this).closest(selector);
+        el = Backbone.$(this).closest(selector);
       return (el && viewsIndexedByCid[el.attr(viewCidAttributeName)]) || false;
     };
   }

@@ -18,43 +18,36 @@
       require.config({
         paths: {
           "jquery": "jquery/dist/jquery",
-          "zepto": "zepto/zepto",
           "underscore": "underscore/underscore",
           "backbone": "backbone/backbone",
-          "Handlebars": "handlebars/handlebars",
+          "Handlebars": "handlebars/handlebars"
+        },
+        shim: {
+          "Handlebars": {
+            exports: "Handlebars"
+          }
         },
         map: {
           "*": {
             // Handlebars is used variously by different vendors. Do both here.
             "handlebars": "Handlebars"
           }
-        },
-        shim: {
-          "jquery": {
-            exports: "$"
-          },
-          "underscore": {
-            exports: "_"
-          },
-          "backbone": {
-            deps: ["jquery", "underscore"],
-            exports: "Backbone"
-          },
-          "Handlebars": {
-            exports: "Handlebars"
-          }
         }
       });
       
-      require(["chai/chai", "handlebones-jquery-bundle"], function (chai) {
+      require(["chai/chai"], function (chai) {
         // Set up AMD Chai (just make global for test cases).
         window.chai = chai;
         window.expect = chai.expect;
         
-        // Add in specs.
-        require(["test.js"], function () {
-          (window.mochaPhantomJS || mocha).run();
+        require(["jquery", "backbone"], function ($, Backbone) {
+          Backbone.$ = $;
+          // Add in specs.
+          require(["test.js"], function () {
+            (window.mochaPhantomJS || mocha).run();
+          });
         });
+
       });
     </script>
   </body>

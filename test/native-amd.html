@@ -17,7 +17,7 @@
       // AMD setup.
       require.config({
         paths: {
-          "backbone.nativeview": "backbone.nativeview",
+          "backbone.nativeview": "backbone.nativeview/backbone.nativeview",
           "underscore": "underscore/underscore",
           "backbone": "backbone/backbone",
           "Handlebars": "handlebars/handlebars",
@@ -29,26 +29,19 @@
           }
         },
         shim: {
-          "underscore": {
-            exports: "_"
-          },
-          "backbone": {
-            deps: ["backbone.nativeview", "underscore"],
-            exports: "Backbone"
-          },
           "Handlebars": {
             exports: "Handlebars"
           }
         }
       });
-      
-      require(["chai/chai", "handlebones-native-bundle"], function (chai) {
+
+      require(["chai/chai"], function (chai) {
         // Set up AMD Chai (just make global for test cases).
         window.chai = chai;
         window.expect = chai.expect;
         
         // Add in specs.
-        require(["test.js"], function () {
+        require(["backbone.nativeview", "test.js"], function () {
           (window.mochaPhantomJS || mocha).run();
         });
       });

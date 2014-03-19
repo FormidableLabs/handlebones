@@ -12,8 +12,7 @@
     "gulp-rename": "~1.2.0",
     "gulp-clean": "~0.2.4",
     "gulp-connect": "~1.0.7",
-    "async": "~0.2.10",
-    "gulp-requirejs": "https://github.com/pago/gulp-requirejs/tarball/patch-1"
+    "async": "~0.2.10"
   },
   "scripts": {
     "test": "gulp"

@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "underscore": "1.6.0",
-    "backbone": "git://github.com/jashkenas/backbone.git#28ac8746088aa3cdf2f0ecec0bc6a8443f5f4259",
+    "backbone": "git://github.com/FormidableLabs/backbone.git#f2fa4098b70b71bfe1c37302ae3d26a7214ae0b5",
     "handlebars": "1.1.2"
   },
   "devDependencies": {

@@ -13,7 +13,7 @@
       if (isNode) { 
         module.exports = callback;
       } else {
-        callback(root.$, root._, root.Backbone, root.Handlebars, root.Handlebones);
+        callback(root._, root.Backbone, root.Handlebars, root.Handlebones);
       }
     };
   }
@@ -27,12 +27,11 @@
 
 // We will alias zepto in, in the zepto test
 define([
-  "jquery",
   "underscore",
   "backbone",
   "handlebars",
   "handlebones"
-], function ($, _, Backbone, Handlebars, Handlebones) {
+], function (_, Backbone, Handlebars, Handlebones) {
   
   var expect = chai.expect;
   

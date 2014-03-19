@@ -227,6 +227,10 @@
     }
   });
 
+  if (Backbone.NativeViewMixin) {
+    _.extend(Handlebones.View.prototype, Backbone.NativeViewMixin);
+  }
+
   // LayoutView
   Handlebones.LayoutView = Handlebones.View.extend({
     render: function () {

@@ -16,10 +16,12 @@ gulp.task("mocha", [
   "require:zepto"
 ], function () {
   async.series([
+    "native.html",
     "jquery.html",
     "zepto.html",
+    "native-bundle.html",
     "jquery-bundle.html",
-    "zepto-bundle.html"
+    "zepto-bundle.html",
   ].map(function (page) {
     return function (next) {
       var cmd = "mocha-phantomjs http://localhost:8080/" + page,
@@ -41,26 +43,26 @@ gulp.task("mocha", [
   });
 });
 
-var rjsShim = {
-  "underscore": {
-    exports: "_"
-  },
-  "backbone": {
-    deps: ["jquery", "underscore"],
-    exports: "Backbone"
-  },
-  "Handlebars": {
-    exports: "Handlebars"
-  },
-  "jquery": {
-    exports: "$"
-  },
-  "zepto": {
-    exports: "$"
-  }
+function rjsShim(extra) {
+  return {
+    "underscore": {
+      exports: "_"
+    },
+    "Handlebars": {
+      exports: "Handlebars"
+    },
+    "jquery": {
+      exports: "$"
+    },
+    "zepto": {
+      exports: "$"
+    }
+  };
 };
 
+
 var rjsPaths = {
+  "backbone.nativeview": "bower_components/backbone.nativeview/backbone.nativeview",
   "jquery": "bower_components/jquery/dist/jquery",
   "zepto": "bower_components/zepto/zepto",
   "underscore": "bower_components/underscore/underscore",
@@ -69,11 +71,17 @@ var rjsPaths = {
 };
 
 gulp.task("require:jquery", function () {
+  var shim = rjsShim();
+  shim["backbone"] = {
+    deps: ["jquery", "underscore"],
+    exports: "Backbone"
+  };
+
   return rjs({
     baseUrl: "./",
     name: "handlebones",
     out: "handlebones-jquery-bundle.js",
-    shim: rjsShim,
+    shim: shim,
     paths: rjsPaths,
     map: {
       "*": {
@@ -86,6 +94,12 @@ gulp.task("require:jquery", function () {
 });
 
 gulp.task("require:zepto", function () {
+  var shim = rjsShim();
+  shim["backbone"] = {
+    deps: ["jquery", "underscore"],
+    exports: "Backbone"
+  };
+
   return rjs({
     baseUrl: "./",
     name: "handlebones",
@@ -102,6 +116,31 @@ gulp.task("require:zepto", function () {
     // ... more require.js options
   }).pipe(gulp.dest("./")); // pipe it to the output DIR
 });
+
+gulp.task("require:native", function () {
+  var shim = rjsShim();
+  shim["backbone"] = {
+    deps: ["underscore"],
+    exports: "Backbone"
+  };
+  
+  return rjs({
+    baseUrl: "./",
+    name: "handlebones",
+    out: "handlebones-native-bundle.js",
+    shim: rjsShim,
+    paths: rjsPaths,
+    map: {
+      "*": {
+        "jquery": "zepto",
+        // Handlebars is used variously by different vendors. Do both here.
+        "handlebars": "Handlebars"
+      }
+    }
+    // ... more require.js options
+  }).pipe(gulp.dest("./")); // pipe it to the output DIR
+});
+
 
 gulp.task("connect", connect.server({
   root: ["test", "bower_components", __dirname],

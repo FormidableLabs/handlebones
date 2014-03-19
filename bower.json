@@ -12,7 +12,8 @@
     "handlebars": "1.1.2"
   },
   "devDependencies": {
-    "backbone.nativeview": "git://github.com/akre54/Backbone.NativeView.git#833595ee9d8e0566a105583be2b4ec5ed3beb258",
+    "backbone.nativeview": "git://github.com/akre54/Backbone.NativeView.git#1ab6ff2cd972256af6dae059aa0b10c31aca8325",
+    "backbone.nativeajax": "git://github.com/akre54/Backbone.NativeAjax.git",
     "jquery": "2.1.0",
     "zepto": "1.1.3",
     "mocha": "1.17.1",

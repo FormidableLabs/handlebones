@@ -11,7 +11,7 @@ For new projects give the [Handlebones Generator](http://github.com/FormidableLa
 - [Development Version 16kb](https://raw.github.com/FormidableLabs/handlebones/master/handlebones.js)
 - [Production Version 6kb](https://raw.github.com/FormidableLabs/handlebones/master/handlebones.min.js)
 
-Handlebones is designed to be used without RequireJS or with RequireJS without using a shim. Handlebones requires Underscore, Backbone and Handlebars plus jQuery or Zepto. The upcoming version of Backbone will remove DOM libs as a hard dependency, Handlebones was designed with this in mind.
+Handlebones is designed to be used with or without AMD and does not require an AMD shim. Handlebones requires Underscore, Backbone and Handlebars. Handlebones is designed to work **without** jQuery or Zepto if the [Backbone.NativeView](https://github.com/akre54/Backbone.NativeView) plugin is used in it's place.
 
 - [Hello World](http://jsfiddle.net/LQYQV/)
 - [Todos](http://jsfiddle.net/7TLgS/)

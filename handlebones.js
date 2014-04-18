@@ -224,6 +224,13 @@
     _ensureElement: function () {
       configureView.call(this);
       return Backbone.View.prototype._ensureElement.call(this);
+    },
+    _useDocumentFragment: function (callback) {
+      var el = this.el;
+      this.el = document.createDocumentFragment();
+      callback.call(this);
+      el.appendChild(this.el);
+      this.el = el;
     }
   });
 
@@ -332,14 +339,6 @@
     return this.modelFilter(model, this.collection.indexOf(model));
   }
 
-  function useDocumentFragment(callback) {
-    var el = this.el;
-    this.el = document.createDocumentFragment();
-    callback.call(this);
-    el.appendChild(this.el);
-    this.el = el;
-  }
-
   Handlebones.CollectionView = Handlebones.View.extend({
     modelView: Handlebones.ModelView,
     emptyView: false,
@@ -370,7 +369,7 @@
         handleChangeFromNotEmptyToEmpty.call(this);
       } else {
         handleChangeFromEmptyToNotEmpty.call(this);
-        useDocumentFragment.call(this, function () {
+        this._useDocumentFragment(function () {
           this.collection.forEach(function (model) {
             this.addModel(model);
           }, this);
